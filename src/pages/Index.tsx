@@ -5,6 +5,7 @@ import ProfileSection from "@/components/ProfileSection";
 import CatalogSection from "@/components/CatalogSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import FloatingButtons from "@/components/FloatingButtons";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("inicio");
@@ -22,6 +23,7 @@ const Index = () => {
       <CatalogSection />
       <ContactSection />
       <Footer />
+      <FloatingButtons />
     </div>
   );
 };
