@@ -1,27 +1,30 @@
-import { useState } from "react";
-import { ShoppingBag } from "lucide-react";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
-import product6 from "@/assets/product-6.jpg";
+import { useNavigate } from "react-router-dom";
+import { categories } from "@/data/products";
 
-const categories = ["Todos", "Velas", "Cuidado", "Jabones", "Aceites", "Baño", "Joyería"];
-
-const products = [
-  { id: 1, name: "Vela Artesanal Rosa", category: "Velas", price: "$18.00", image: product1, description: "Cera de soja con aroma a rosas y vainilla" },
-  { id: 2, name: "Crema Hidratante Luxe", category: "Cuidado", price: "$32.00", image: product2, description: "Hidratación profunda con extracto de lavanda" },
-  { id: 3, name: "Jabón Floral Artesanal", category: "Jabones", price: "$12.00", image: product3, description: "Jabón natural con flores secas y karité" },
-  { id: 4, name: "Aceite Esencial Lavanda", category: "Aceites", price: "$24.00", image: product4, description: "Aceite puro para aromaterapia y relajación" },
-  { id: 5, name: "Set Bombas de Baño", category: "Baño", price: "$28.00", image: product5, description: "6 bombas efervescentes con aceites esenciales" },
-  { id: 6, name: "Pulsera Amatista", category: "Joyería", price: "$45.00", image: product6, description: "Pulsera artesanal con piedras de amatista" },
-];
+const categoryIcons: Record<string, string> = {
+  "Velas": "🕯️",
+  "Cuidado Facial": "✨",
+  "Jabones": "🧼",
+  "Aceites Esenciales": "🌿",
+  "Baño y Spa": "🛁",
+  "Joyería": "💎",
+  "Aromaterapia": "🌸",
+  "Maquillaje Natural": "💄",
+  "Cuidado Capilar": "💇‍♀️",
+  "Cremas Corporales": "🧴",
+  "Exfoliantes": "🫧",
+  "Mascarillas": "🎭",
+  "Perfumes Naturales": "🌺",
+  "Sets de Regalo": "🎁",
+  "Accesorios": "👜",
+};
 
 const CatalogSection = () => {
-  const [activeCategory, setActiveCategory] = useState("Todos");
+  const navigate = useNavigate();
 
-  const filtered = activeCategory === "Todos" ? products : products.filter((p) => p.category === activeCategory);
+  const handleCategory = (cat: string) => {
+    navigate(`/categoria/${cat.toLowerCase().replace(/\s+/g, "-")}`);
+  };
 
   return (
     <section id="catalogo" className="py-24 gradient-hero">
@@ -36,56 +39,21 @@ const CatalogSection = () => {
           </p>
         </div>
 
-        {/* Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((cat) => (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+          {categories.map((cat, i) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeCategory === cat
-                  ? "gradient-primary text-primary-foreground shadow-soft"
-                  : "bg-card text-muted-foreground border border-border hover:text-foreground hover:shadow-card"
-              }`}
+              onClick={() => handleCategory(cat)}
+              className="group flex flex-col items-center gap-3 p-5 rounded-2xl bg-card border border-border shadow-card hover:shadow-hover hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
+              style={{ animationDelay: `${i * 0.05}s` }}
             >
-              {cat}
+              <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
+                {categoryIcons[cat] || "🛍️"}
+              </span>
+              <span className="text-xs sm:text-sm font-medium text-foreground text-center leading-tight">
+                {cat}
+              </span>
             </button>
-          ))}
-        </div>
-
-        {/* Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map((product, i) => (
-            <div
-              key={product.id}
-              className="group bg-card rounded-2xl overflow-hidden border border-border shadow-card hover:shadow-hover transition-all duration-500 hover:-translate-y-1 animate-fade-in-up"
-              style={{ animationDelay: `${i * 0.1}s` }}
-            >
-              <div className="relative overflow-hidden aspect-square">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                  width={640}
-                  height={640}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300" />
-                <span className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm text-xs font-medium text-muted-foreground px-3 py-1 rounded-full border border-border">
-                  {product.category}
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="font-heading text-lg font-semibold text-foreground mb-1">{product.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold gradient-primary bg-clip-text text-transparent">{product.price}</span>
-                  <button className="gradient-primary text-primary-foreground p-2.5 rounded-xl shadow-soft hover:shadow-hover transition-all duration-300 hover:scale-105">
-                    <ShoppingBag size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
           ))}
         </div>
       </div>
