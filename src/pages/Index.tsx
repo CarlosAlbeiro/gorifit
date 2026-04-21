@@ -23,6 +23,7 @@ const Index = () => {
       <CatalogSection />
       <ContactSection />
       <Footer />
+      <FloatingButtons />
     </div>
   );
 };
