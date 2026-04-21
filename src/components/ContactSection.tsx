@@ -37,26 +37,19 @@ const ContactSection = () => {
 
           {/* Form */}
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Diligencia tu número de teléfono para solicitar información o asesoría acerca de nuestros productos y servicios ejemplo: <span className="font-medium text-foreground">+573123456789</span>
+            </p>
             <input
-              type="text"
-              placeholder="Tu nombre"
+              type="tel"
+              placeholder="Tu número de teléfono"
               className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-            />
-            <input
-              type="email"
-              placeholder="Tu email"
-              className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-            />
-            <textarea
-              rows={4}
-              placeholder="Tu mensaje"
-              className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
             />
             <button
               type="submit"
               className="w-full gradient-primary text-primary-foreground py-3 rounded-xl font-medium shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-0.5"
             >
-              Enviar Mensaje
+              Solicitar
             </button>
           </form>
         </div>
