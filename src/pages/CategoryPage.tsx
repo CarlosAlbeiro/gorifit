@@ -60,9 +60,19 @@ const CategoryPage = () => {
               </div>
               <div className="p-6">
                 <h3 className="font-heading text-lg font-semibold text-foreground mb-1">{product.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{product.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold gradient-primary bg-clip-text text-transparent">{product.price}</span>
+                {product.brand && (
+                  <p className="text-xs font-medium text-primary mb-1 uppercase tracking-wider">{product.brand}</p>
+                )}
+                {product.reference && (
+                  <p className="text-xs text-muted-foreground mb-1">Ref: {product.reference}</p>
+                )}
+                {product.notes && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mb-3 italic">{product.notes}</p>
+                )}
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-xl font-bold gradient-primary bg-clip-text text-transparent">
+                    ${product.price.toLocaleString("es-CO")}
+                  </span>
                   <button className="gradient-primary text-primary-foreground p-2.5 rounded-xl shadow-soft hover:shadow-hover transition-all duration-300 hover:scale-105">
                     <ShoppingBag size={18} />
                   </button>

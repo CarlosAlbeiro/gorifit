@@ -58,11 +58,17 @@ const ProfileSection = () => {
             <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">
               Luisa Restrepo
             </h2>
+
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Soy una emprendedora apasionada por crear productos artesanales que transforman la rutina diaria en momentos especiales. Cada pieza está diseñada con ingredientes naturales y mucho cariño.
+              Hola, soy Lu, maquilladora profesional apasionada por resaltar la belleza natural de cada persona. Me encanta crear looks que se adapten a tu estilo, desde maquillajes suaves para el día a día hasta opciones más elaboradas para ocasiones especiales.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              Además de maquillar, también te ayudo a elegir productos que realmente funcionen para ti. Por eso, aquí no solo encuentras servicios de maquillaje, sino también una selección de productos accesibles, pensados para que puedas lograr un resultado bonito y práctico en tu rutina diaria.            
             </p>
             <p className="text-muted-foreground leading-relaxed mb-8">
-              Mi misión es ofrecer bienestar a través de productos únicos que cuiden de ti y del medio ambiente. Creo en la belleza consciente y en el poder de lo hecho a mano.
+              Mi enfoque es que te sientas cómoda, segura y auténtica con tu maquillaje, sin necesidad de complicarte o gastar de más.
+
+              Estoy aquí para acompañarte y ayudarte a verte y sentirte increíble 💄✨
             </p>
 
             {/* Stats */}

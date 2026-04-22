@@ -2,21 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { categories } from "@/data/products";
 
 const categoryIcons: Record<string, string> = {
-  "Velas": "🕯️",
-  "Cuidado Facial": "✨",
-  "Jabones": "🧼",
-  "Aceites Esenciales": "🌿",
-  "Baño y Spa": "🛁",
-  "Joyería": "💎",
-  "Aromaterapia": "🌸",
-  "Maquillaje Natural": "💄",
-  "Cuidado Capilar": "💇‍♀️",
-  "Cremas Corporales": "🧴",
-  "Exfoliantes": "🫧",
-  "Mascarillas": "🎭",
-  "Perfumes Naturales": "🌺",
-  "Sets de Regalo": "🎁",
-  "Accesorios": "👜",
+  "Brochas": "🖌️",
+  "Paletas de Ojos": "👁️",
+  "Labiales, Tintas y Brillos": "💋",
+  "Iluminadores, Rubores y Contornos": "✨",
+  "Cejas y Pestañas": "👁️🗨️",
+  "Polvos Sueltos": "🪞",
+  "Productos Corporales": "🧴",
+  "Esponjas y Accesorios": "👜",
 };
 
 const CatalogSection = () => {
