@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSite } from "@/context/SiteContext";
+import { useSite, API_URL } from "@/context/SiteContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -39,7 +39,7 @@ const Admin = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/requests');
+      const res = await fetch(`${API_URL}/requests`);
       if (res.ok) {
         const data = await res.json();
         setRequests(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
@@ -130,7 +130,7 @@ const Admin = () => {
     const formData = new FormData();
     formData.append('image', file);
     try {
-      const res = await fetch('http://localhost:3000/api/upload', {
+      const res = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -145,7 +145,7 @@ const Admin = () => {
 
   const updateRequestStatus = async (id: string, status: string) => {
     try {
-      await fetch(`http://localhost:3000/api/requests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ status }) });
+      await fetch(`${API_URL}/requests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ status }) });
       fetchRequests();
     } catch (e) { }
   };

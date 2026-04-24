@@ -1,6 +1,6 @@
 import { MapPin, Phone, Instagram, Facebook, Youtube, Video, Send, Loader2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSite } from "@/context/SiteContext";
+import { useSite, API_URL } from "@/context/SiteContext";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -31,7 +31,7 @@ const ContactSection = () => {
         location = `${dataIp.city}, ${dataIp.country_name}`;
       } catch (e) { console.error(e); }
 
-      const res = await fetch('http://localhost:3000/api/requests', {
+      const res = await fetch(`${API_URL}/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, location, status: 'pendiente' })

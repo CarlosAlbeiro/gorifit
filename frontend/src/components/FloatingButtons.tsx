@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useSite } from "@/context/SiteContext";
+import { useSite, API_URL } from "@/context/SiteContext";
 
 const FloatingButtons = () => {
   const { contact } = useSite();
@@ -31,7 +31,7 @@ const FloatingButtons = () => {
       } catch (e) { console.error("No se pudo obtener ubicación"); }
 
       // Enviar solicitud al backend
-      const res = await fetch('http://localhost:3000/api/requests', {
+      const res = await fetch(`${API_URL}/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
