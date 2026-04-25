@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import { API_URL } from "@/context/SiteContext";
+import { API_URL, useSite } from "@/context/SiteContext";
 
 interface ProductRequestModalProps {
   product: any | null;
@@ -16,6 +16,7 @@ interface ProductRequestModalProps {
 }
 
 const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOpen, onClose }) => {
+  const { getMediaUrl } = useSite();
   const [phone, setPhone] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +81,7 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
         <div className="py-4 space-y-4">
           <div className="flex items-center gap-4 p-3 bg-secondary/10 rounded-2xl border border-primary/5">
             <img 
-              src={product.image} 
+              src={getMediaUrl(product.image)} 
               alt={product.name} 
               className="w-16 h-16 object-cover rounded-xl shadow-sm"
             />

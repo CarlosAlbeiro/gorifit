@@ -2,7 +2,7 @@ import { useSite } from "@/context/SiteContext";
 import { Loader2, WifiOff } from "lucide-react";
 
 const ServicesSection = () => {
-  const { services, categories, isLoading, isConnected } = useSite();
+  const { services, categories, isLoading, isConnected, getMediaUrl } = useSite();
   
   const activeServices = services.filter(s => s.active);
 
@@ -32,7 +32,7 @@ const ServicesSection = () => {
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
-                    src={service.image || "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1000&auto=format&fit=crop"}
+                    src={getMediaUrl(service.image)}
                     alt={service.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

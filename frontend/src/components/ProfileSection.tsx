@@ -5,7 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const ProfileSection = () => {
-  const { profile, contact } = useSite();
+  const { profile, contact, getMediaUrl } = useSite();
   const [activeSlide, setActiveSlide] = useState(0);
 
   if (!profile.active) return null;
@@ -33,7 +33,7 @@ const ProfileSection = () => {
 
   const tiktokEmbed = getTikTokEmbedUrl(profile.tiktok_video_url);
   const slides = [
-    { type: 'image', content: profile.imageUrl },
+    { type: 'image', content: getMediaUrl(profile.imageUrl) },
     ...(tiktokEmbed ? [{ type: 'video', content: tiktokEmbed }] : [])
   ];
 

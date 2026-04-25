@@ -11,7 +11,7 @@ const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1522335789203-aabd1
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { products, categories, isLoading, isConnected } = useSite();
+  const { products, categories, isLoading, isConnected, getMediaUrl } = useSite();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,7 +117,7 @@ const CategoryPage = () => {
               >
                 <div className="relative overflow-hidden aspect-square bg-secondary/10">
                   <img
-                    src={product.image || PLACEHOLDER_IMAGE}
+                    src={getMediaUrl(product.image)}
                     alt={product.name}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"

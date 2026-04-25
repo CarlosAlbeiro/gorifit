@@ -111,6 +111,7 @@ interface SiteContextType {
   addBrand: (brand: Omit<Brand, "id">) => void;
   updateBrand: (id: number | string, data: Partial<Brand>) => void;
   deleteBrand: (id: number | string) => void;
+  getMediaUrl: (path: string | null | undefined) => string;
 }
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
@@ -427,12 +428,20 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try { await fetchWithAuth(`${API_URL}/products/${id}`, { method: 'DELETE' }); fetchAllData(); } catch (err) { }
   };
 
+  const getMediaUrl = (path: string | null | undefined) => {
+    if (!path) return "/placeholder.svg";
+    if (path.startsWith('http')) return path;
+    const baseUrl = API_URL.replace('/api', '');
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
   return (
     <SiteContext.Provider value={{ 
       sections, profile, contact, services, products, categories, brands, isLoading, isConnected, user, token, login, logout,
       setSectionVisibility, updateProfile, updateContact, addService, updateService, deleteService, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addBrand, updateBrand, deleteBrand,
       theme,
-      toggleTheme
+      toggleTheme,
+      getMediaUrl
     }}>
       {children}
     </SiteContext.Provider>

@@ -27,7 +27,7 @@ const Admin = () => {
     products, addProduct, updateProduct, deleteProduct,
     categories, addCategory, updateCategory, deleteCategory,
     brands, addBrand, updateBrand, deleteBrand,
-    logout, token, theme, toggleTheme
+    logout, token, theme, toggleTheme, getMediaUrl
   } = useSite();
 
   const [localProfile, setLocalProfile] = useState(profile);
@@ -351,7 +351,7 @@ const Admin = () => {
                       </div>
                       <div className="grid gap-2"><Label>Imagen</Label>
                         <div className="relative group w-full h-32 rounded border-2 border-dashed flex items-center justify-center bg-secondary/10">
-                          {editingService?.image ? <img src={editingService.image} className="h-full w-full object-cover" /> : <Scissors className="w-8 h-8 text-muted-foreground/30" />}
+                          {editingService?.image ? <img src={getMediaUrl(editingService.image)} className="h-full w-full object-cover" /> : <Scissors className="w-8 h-8 text-muted-foreground/30" />}
                           <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white">
                             <Plus /><input type="file" className="hidden" accept="image/*" onChange={async e => {
                               const file = e.target.files?.[0]; if (file) {
@@ -420,7 +420,7 @@ const Admin = () => {
                       <div className="grid gap-2 col-span-2"><Label>Notas</Label><Input name="notes" defaultValue={editingProduct?.notes} /></div>
                       <div className="grid gap-2 col-span-2"><Label>Imagen</Label>
                         <div className="relative group w-full h-32 rounded border-2 border-dashed flex items-center justify-center bg-secondary/10">
-                          {editingProduct?.image ? <img src={editingProduct.image} className="h-full w-full object-cover" /> : <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />}
+                          {editingProduct?.image ? <img src={getMediaUrl(editingProduct.image)} className="h-full w-full object-cover" /> : <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />}
                           <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white">
                             <Plus /><input type="file" className="hidden" accept="image/*" onChange={async e => {
                               const file = e.target.files?.[0]; if (file) {
@@ -541,7 +541,7 @@ const Admin = () => {
                       <Label className="mb-2 block">Foto de Perfil</Label>
                       <div className="relative group aspect-square w-full max-w-[240px] rounded-2xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden shadow-inner">
                         {localProfile.imageUrl ? (
-                          <img src={localProfile.imageUrl} className="w-full h-full object-cover" alt="Profile" />
+                          <img src={getMediaUrl(localProfile.imageUrl)} className="w-full h-full object-cover" alt="Profile" />
                         ) : (
                           <User className="w-12 h-12 text-muted-foreground/30" />
                         )}
@@ -562,7 +562,7 @@ const Admin = () => {
                       <Label className="mb-2 block">Icono del Sitio (Favicon)</Label>
                       <div className="relative group aspect-square w-16 h-16 rounded-xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden">
                         {localProfile.site_icon_url ? (
-                          <img src={localProfile.site_icon_url} className="w-full h-full object-contain p-2" alt="Icon" />
+                          <img src={getMediaUrl(localProfile.site_icon_url)} className="w-full h-full object-contain p-2" alt="Icon" />
                         ) : (
                           <Sparkles className="w-6 h-6 text-muted-foreground/30" />
                         )}
