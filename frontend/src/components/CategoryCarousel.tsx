@@ -14,24 +14,6 @@ const CategoryCarousel = () => {
   const { categories, isLoading, isConnected } = useSite();
   const navigate = useNavigate();
   
-  if (isLoading) {
-    return (
-      <div className="w-full h-[30vh] flex flex-col items-center justify-center bg-secondary/10">
-        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-        <p className="text-xs text-muted-foreground animate-pulse">Cargando catálogo...</p>
-      </div>
-    );
-  }
-
-  if (!isConnected) {
-    return (
-      <div className="w-full h-[30vh] flex flex-col items-center justify-center bg-red-50/10 text-red-500">
-        <WifiOff className="w-8 h-8 mb-4" />
-        <p className="text-sm font-semibold">Sin conexión al servidor</p>
-      </div>
-    );
-  }
-
   const catalogCategories = categories.filter(c => c.type === 'product' && c.active);
 
   if (catalogCategories.length === 0) return null;

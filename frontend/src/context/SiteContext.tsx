@@ -56,6 +56,7 @@ interface ProfileData {
   fullname: string;
   bio: string;
   imageUrl: string;
+  site_icon_url: string;
   stats_years: string;
   stats_clients: string;
   stats_products: string;
@@ -119,7 +120,7 @@ const DEFAULT_SECTIONS: SectionVisibility = {
 };
 
 const DEFAULT_PROFILE: ProfileData = {
-  name: "Luisa Restrepo", fullname: "Luisa Restrepo - Maquilladora Profesional", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg",
+  name: "Luisa Restrepo", fullname: "Luisa Restrepo - Maquilladora Profesional", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg", site_icon_url: "/favicon.ico",
   stats_years: "8+", stats_clients: "500+", stats_products: "120+", stats_awards: "15", active: true,
 };
 
@@ -159,6 +160,15 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     localStorage.setItem("site_theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (profile.site_icon_url) {
+      const link: HTMLLinkElement = document.querySelector("link[rel~='icon']") || document.createElement('link');
+      link.rel = 'icon';
+      link.href = profile.site_icon_url;
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+  }, [profile.site_icon_url]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -219,6 +229,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fullname: p.fullname || '', 
             bio: p.bio, 
             imageUrl: p.image_url || "/placeholder.svg", 
+            site_icon_url: p.site_icon_url || "/favicon.ico",
             stats_years: p.stats_years || "8+", 
             stats_clients: p.stats_clients || "500+", 
             stats_products: p.stats_products || "120+", 
@@ -298,9 +309,27 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch(`${API_URL}/profile`);
       const p = (await res.json())[0];
       if (p) {
-        const payload: any = { name: data.name, fullname: data.fullname, bio: data.bio, is_active: data.active, image_url: data.imageUrl, stats_years: data.stats_years, stats_clients: data.stats_clients, stats_products: data.stats_products, stats_awards: data.stats_awards, tiktok_video_url: data.tiktok_video_url };
-        Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
-        await fetchWithAuth(`${API_URL}/profile/${p.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const payload: any = {
+          name: data.name,
+          fullname: data.fullname,
+          bio: data.bio,
+          is_active: data.active,
+          image_url: data.imageUrl,
+          site_icon_url: data.site_icon_url,
+          stats_years: data.stats_years,
+          stats_clients: data.stats_clients,
+          stats_products: data.stats_products,
+          stats_awards: data.stats_awards,
+          tiktok_video_url: data.tiktok_video_url
+        };
+        // Remove undefined keys to avoid overwriting with null
+        Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+        
+        await fetchWithAuth(`${API_URL}/profile/${p.id}`, { 
+          method: 'PUT', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify(payload) 
+        });
       }
     } catch (err) { }
   };

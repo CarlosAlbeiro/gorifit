@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   LayoutDashboard, Scissors, ShoppingBag, User, Mail, 
-  Settings, Plus, Pencil, Trash2, LogOut, Eye, CheckCircle2, Package, Save, ClipboardList, Clock, MapPin, Phone, Tags, Image as ImageIcon, Search, X, Sun, Moon
+  Settings, Plus, Pencil, Trash2, LogOut, Eye, CheckCircle2, Package, Save, ClipboardList, Clock, MapPin, Phone, Tags, Image as ImageIcon, Search, X, Sun, Moon, Sparkles
 } from "lucide-react";
 import { 
   Dialog, DialogContent, DialogDescription, 
@@ -503,7 +503,7 @@ const Admin = () => {
               <div className="max-h-[400px] overflow-y-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow><TableHead>Fecha</TableHead><TableHead>WhatsApp</TableHead><TableHead>Estado</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow>
+                    <TableRow><TableHead>Fecha</TableHead><TableHead>WhatsApp</TableHead><TableHead>Detalle</TableHead><TableHead>Estado</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow>
                   </TableHeader>
                   <TableBody>
                     {requests
@@ -513,6 +513,15 @@ const Admin = () => {
                         <TableRow key={r.id}>
                           <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</TableCell>
                           <TableCell className="font-medium flex items-center gap-2"><Phone className="w-3 h-3 text-green-500" /> {r.phone}</TableCell>
+                          <TableCell>
+                            {r.product_info ? (
+                              <div className="max-w-[200px] truncate text-[10px] bg-primary/5 text-primary p-1 rounded border border-primary/10" title={r.product_info}>
+                                {r.product_info}
+                              </div>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground italic">General</span>
+                            )}
+                          </TableCell>
                           <TableCell><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${r.status === 'pendiente' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{r.status}</span></TableCell>
                           <TableCell className="text-right">{r.status === 'pendiente' && <Button size="sm" variant="outline" className="h-7 text-[10px] px-2" onClick={() => updateRequestStatus(r.id, 'completado')}>Marcar OK</Button>}</TableCell>
                         </TableRow>
@@ -527,18 +536,47 @@ const Admin = () => {
             <Card><CardHeader className="flex justify-between flex-row"><div><CardTitle>Perfil</CardTitle></div><Button onClick={handleSaveProfile} className="gradient-primary">Guardar</Button></CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="w-full md:w-1/3">
-                    <Label>Foto de Perfil</Label>
-                    <div className="relative group w-48 h-48 rounded border-2 border-dashed flex items-center justify-center bg-secondary/20 overflow-hidden">
-                      {profile.imageUrl ? <img src={profile.imageUrl} className="w-full h-full object-cover" /> : <User className="w-12 h-12 text-muted-foreground/30" />}
-                      <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white">
-                        <Plus /><input type="file" className="hidden" accept="image/*" onChange={async e => {
-                          const file = e.target.files?.[0]; if (file) {
-                            const url = await handleImageUpload(file);
-                            if (url) { updateProfile({ imageUrl: url }); toast.success("Foto de perfil cargada"); }
-                          }
-                        }} />
-                      </label>
+                  <div className="w-full md:w-1/3 space-y-6">
+                    <div>
+                      <Label className="mb-2 block">Foto de Perfil</Label>
+                      <div className="relative group aspect-square w-full max-w-[240px] rounded-2xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden shadow-inner">
+                        {localProfile.imageUrl ? (
+                          <img src={localProfile.imageUrl} className="w-full h-full object-cover" alt="Profile" />
+                        ) : (
+                          <User className="w-12 h-12 text-muted-foreground/30" />
+                        )}
+                        <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer text-white transition-opacity duration-300">
+                          <ImageIcon className="mb-2" />
+                          <span className="text-xs font-bold uppercase tracking-wider">Cambiar Foto</span>
+                          <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                            const file = e.target.files?.[0]; if (file) {
+                              const url = await handleImageUpload(file);
+                              if (url) { setLocalProfile({...localProfile, imageUrl: url}); toast.success("Foto cargada"); }
+                            }
+                          }} />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="mb-2 block">Icono del Sitio (Favicon)</Label>
+                      <div className="relative group aspect-square w-16 h-16 rounded-xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden">
+                        {localProfile.site_icon_url ? (
+                          <img src={localProfile.site_icon_url} className="w-full h-full object-contain p-2" alt="Icon" />
+                        ) : (
+                          <Sparkles className="w-6 h-6 text-muted-foreground/30" />
+                        )}
+                        <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white transition-opacity duration-300">
+                          <Plus size={16} />
+                          <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                            const file = e.target.files?.[0]; if (file) {
+                              const url = await handleImageUpload(file);
+                              if (url) { setLocalProfile({...localProfile, site_icon_url: url}); toast.success("Icono cargado"); }
+                            }
+                          }} />
+                        </label>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-2">Recomendado: 64x64px (PNG o ICO)</p>
                     </div>
                   </div>
                   <div className="flex-1 space-y-4 w-full">

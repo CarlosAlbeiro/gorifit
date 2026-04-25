@@ -8,6 +8,7 @@ const ContactSection = () => {
   const { contact } = useSite();
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   if (!contact.active) return null;
 
@@ -21,6 +22,7 @@ const ContactSection = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone) return toast.error("Ingresa tu número");
+    if (!accepted) return toast.error("Debes aceptar el tratamiento de datos");
 
     setIsSubmitting(true);
     try {
@@ -34,14 +36,21 @@ const ContactSection = () => {
       const res = await fetch(`${API_URL}/public-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, location, status: 'pendiente' })
+        body: JSON.stringify({ 
+          phone, 
+          location, 
+          consentGiven: true, 
+          policyVersion: 'v1.0' 
+        })
       });
 
       if (res.ok) {
         toast.success("Tu asesoría se ha solicitado con éxito.");
         setPhone("");
+        setAccepted(false);
       } else {
-        toast.error("No se pudo enviar la solicitud.");
+        const errorData = await res.json();
+        toast.error(errorData.error || "No se pudo enviar la solicitud.");
       }
     } catch (err) {
       toast.error("Error de conexión.");
@@ -101,26 +110,42 @@ const ContactSection = () => {
             ))}
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <p className="text-sm text-muted-foreground leading-relaxed text-center">
-              Diligencia tu número de teléfono para solicitar información o asesoría:
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="tel"
-                placeholder="Tu número de teléfono"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                required
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed text-center">
+                Diligencia tu número de teléfono para solicitar información o asesoría:
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="tel"
+                  placeholder="Tu número de teléfono"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="flex-1 px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !accepted}
+                  className="gradient-primary text-primary-foreground px-6 py-3 rounded-xl font-medium shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 bg-secondary/10 p-4 rounded-xl border border-primary/10">
+              <input 
+                type="checkbox" 
+                id="legal-consent"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-all cursor-pointer"
               />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="gradient-primary text-primary-foreground px-6 py-3 rounded-xl font-medium shadow-soft hover:shadow-hover transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50"
-              >
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-              </button>
+              <label htmlFor="legal-consent" className="text-xs text-muted-foreground leading-relaxed cursor-pointer select-none">
+                Autorizo el tratamiento de mi número de teléfono para recibir asesorías e información de servicios vía WhatsApp, 
+                conforme a la <a href="/politica-de-privacidad" target="_blank" className="text-primary font-bold hover:underline">Política de Privacidad</a>.
+              </label>
             </div>
           </form>
         </div>

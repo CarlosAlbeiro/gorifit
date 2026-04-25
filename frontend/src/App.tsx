@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound.tsx";
 import CategoryPage from "./pages/CategoryPage.tsx";
 import Admin from "./pages/Admin.tsx";
 import Login from "./pages/Login.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import TermsAndConditions from "./pages/TermsAndConditions.tsx";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/politica-de-privacidad" element={<PrivacyPolicy />} />
+            <Route path="/terminos-y-condiciones" element={<TermsAndConditions />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
             <Route 
               path="/admin" 

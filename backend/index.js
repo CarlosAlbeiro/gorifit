@@ -172,12 +172,20 @@ app.use('/api/requests', createCrudRoutes('service_requests'));
 // Custom POST route for requests WITHOUT auth (public)
 const requestRouter = express.Router();
 requestRouter.post('/', async (req, res) => {
-  const fields = Object.keys(req.body);
-  const values = Object.values(req.body);
-  const placeholders = fields.map((_, i) => `$${i + 1}`).join(', ');
-  const query = `INSERT INTO service_requests (${fields.join(', ')}) VALUES (${placeholders}) RETURNING *`;
+  const { phone, location, consentGiven, policyVersion, productInfo } = req.body;
+  const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  if (!consentGiven) {
+    return res.status(400).json({ 
+      error: 'Se requiere autorización de tratamiento de datos conforme a la Ley 1581.' 
+    });
+  }
+
   try {
-    const result = await pool.query(query, values);
+    const result = await pool.query(
+      'INSERT INTO service_requests (phone, location, consent_given, ip_address, policy_version, source, product_info) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [phone, location, true, ipAddress, policyVersion || 'v1.0', productInfo ? 'product' : 'web', productInfo]
+    );
     res.status(201).json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });

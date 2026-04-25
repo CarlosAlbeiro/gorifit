@@ -4,21 +4,6 @@ import { Loader2, WifiOff } from "lucide-react";
 const ServicesSection = () => {
   const { services, categories, isLoading, isConnected } = useSite();
   
-  if (isLoading) return (
-    <div className="py-24 text-center bg-secondary/10">
-      <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
-      <p className="mt-4 text-muted-foreground">Cargando servicios...</p>
-    </div>
-  );
-
-  if (!isConnected) return (
-    <div className="py-24 text-center text-red-500 bg-red-50/30">
-      <WifiOff className="w-12 h-12 mx-auto mb-4" />
-      <h3 className="text-xl font-semibold">Esperando conexión</h3>
-      <p className="text-sm opacity-80">No se pudieron cargar los servicios.</p>
-    </div>
-  );
-
   const activeServices = services.filter(s => s.active);
 
   if (activeServices.length === 0) return null;

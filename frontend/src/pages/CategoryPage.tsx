@@ -3,22 +3,26 @@ import { ArrowLeft, ShoppingBag, Loader2, Search, X } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { LoadingPage, ErrorPage } from "@/components/StatusPages";
+import ProductRequestModal from "@/components/ProductRequestModal";
 
 const PLACEHOLDER_IMAGE = "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1000&auto=format&fit=crop";
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { products, categories, isLoading } = useSite();
+  const { products, categories, isLoading, isConnected } = useSite();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center gradient-hero">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const handleProductClick = (product: any) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  if (isLoading) return <LoadingPage />;
+  if (!isConnected) return <ErrorPage />;
 
   const category = categories.find(
     (c) => c.name.toLowerCase().replace(/\s+/g, "-") === slug
@@ -57,10 +61,10 @@ const CategoryPage = () => {
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
-            className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors shrink-0"
+            className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors shrink-0"
           >
             <ArrowLeft size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider">Volver</span>
+            <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-wider">Volver</span>
           </button>
           
           <div className="relative flex-1 w-full">
@@ -147,7 +151,10 @@ const CategoryPage = () => {
                     <span className="text-base font-black text-foreground">
                       ${product.price?.toLocaleString("es-CO") || "0"}
                     </span>
-                    <button className="bg-primary text-primary-foreground p-2 rounded-lg shadow-soft hover:shadow-hover transition-all duration-300 hover:scale-110">
+                    <button 
+                      onClick={() => handleProductClick(product)}
+                      className="bg-primary text-primary-foreground p-2 rounded-lg shadow-soft hover:shadow-hover transition-all duration-300 hover:scale-110"
+                    >
                       <ShoppingBag size={14} />
                     </button>
                   </div>
@@ -157,6 +164,12 @@ const CategoryPage = () => {
           </div>
         )}
       </div>
+
+      <ProductRequestModal 
+        product={selectedProduct} 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };

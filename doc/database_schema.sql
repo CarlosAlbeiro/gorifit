@@ -35,6 +35,7 @@ CREATE TABLE profile (
     fullname VARCHAR(200),
     bio TEXT,
     image_url TEXT,
+    site_icon_url TEXT,
     stats_years VARCHAR(20) DEFAULT '8+',
     stats_clients VARCHAR(20) DEFAULT '500+',
     stats_products VARCHAR(20) DEFAULT '120+',
