@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3050/api";
+export const API_URL = (() => {
+  const url = import.meta.env.VITE_API_URL || "http://localhost:3050/api";
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && url.startsWith('http:')) {
+    return url.replace('http:', 'https:');
+  }
+  return url;
+})();
 
 interface SectionVisibility {
   hero: boolean;
@@ -166,7 +172,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (profile.site_icon_url) {
       const link: HTMLLinkElement = document.querySelector("link[rel~='icon']") || document.createElement('link');
       link.rel = 'icon';
-      link.href = profile.site_icon_url;
+      link.href = getMediaUrl(profile.site_icon_url);
       document.getElementsByTagName('head')[0].appendChild(link);
     }
   }, [profile.site_icon_url]);
