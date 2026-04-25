@@ -14,11 +14,13 @@ const FloatingButtons = () => {
   const { contact } = useSite();
   const [isOpen, setIsOpen] = useState(false);
   const [phone, setPhone] = useState("");
+  const [accepted, setAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRequestAsesoria = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone) return toast.error("Por favor ingresa tu número");
+    if (!accepted) return toast.error("Debes aceptar el tratamiento de datos");
 
     setIsSubmitting(true);
     try {
@@ -37,7 +39,8 @@ const FloatingButtons = () => {
         body: JSON.stringify({
           phone: phone,
           location: location,
-          status: 'pendiente'
+          consentGiven: true,
+          policyVersion: 'v1.0'
         })
       });
 
@@ -45,6 +48,7 @@ const FloatingButtons = () => {
         toast.success("Solicitud enviada con éxito. Te contactaremos pronto.");
         setIsOpen(false);
         setPhone("");
+        setAccepted(false);
       } else {
         throw new Error("Error al guardar solicitud");
       }
@@ -99,9 +103,23 @@ const FloatingButtons = () => {
                   required
                 />
               </div>
+
+              <div className="flex items-start gap-3 bg-secondary/5 p-3 rounded-xl border border-border/50">
+                <input 
+                  type="checkbox" 
+                  id="legal-consent-whatsapp"
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="legal-consent-whatsapp" className="text-[10px] text-muted-foreground leading-snug cursor-pointer select-none">
+                  Acepto el tratamiento de mis datos para recibir asesoría personalizada vía WhatsApp, 
+                  según la <a href="/politica-de-privacidad" target="_blank" className="text-primary font-bold underline">Política de Privacidad</a>.
+                </label>
+              </div>
             </div>
             <DialogFooter>
-              <Button type="submit" className="w-full bg-[#25D366] hover:bg-[#1eb956]" disabled={isSubmitting}>
+              <Button type="submit" className="w-full bg-[#25D366] hover:bg-[#1eb956]" disabled={isSubmitting || !accepted}>
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 ) : (
