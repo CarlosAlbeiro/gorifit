@@ -31,7 +31,7 @@ const FloatingButtons = () => {
       } catch (e) { console.error("No se pudo obtener ubicación"); }
 
       // Enviar solicitud al backend
-      const res = await fetch(`${API_URL}/requests`, {
+      const res = await fetch(`${API_URL}/public-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

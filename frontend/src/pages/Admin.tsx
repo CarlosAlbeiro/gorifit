@@ -173,16 +173,16 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card className="p-3 bg-white/50 backdrop-blur-sm border-primary/10">
+          <Card className="p-3 bg-white/50 backdrop-blur-sm border-teal-500 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 overflow-hidden">
-                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-teal-500  shrink-0" />
                 <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground truncate">Secciones</span>
               </div>
               <span className="text-sm font-black text-foreground">{activeSectionsCount}</span>
             </div>
           </Card>
-          <Card className="p-3 bg-white/50 backdrop-blur-sm border-blue-100">
+          <Card className="p-3 bg-white/50 backdrop-blur-sm border-blue-500 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <Scissors className="w-3.5 h-3.5 text-blue-500 shrink-0" />
@@ -191,7 +191,7 @@ const Admin = () => {
               <span className="text-sm font-black text-foreground">{services.length}</span>
             </div>
           </Card>
-          <Card className="p-3 bg-white/50 backdrop-blur-sm border-amber-100">
+          <Card className="p-3 bg-white/50 backdrop-blur-sm border-amber-500 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <Tags className="w-3.5 h-3.5 text-amber-500 shrink-0" />
@@ -200,7 +200,7 @@ const Admin = () => {
               <span className="text-sm font-black text-foreground">{brands.length}</span>
             </div>
           </Card>
-          <Card className="p-3 bg-white/50 backdrop-blur-sm border-pink-100">
+          <Card className="p-3 bg-white/50 backdrop-blur-sm border-pink-500 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <Package className="w-3.5 h-3.5 text-pink-500 shrink-0" />
@@ -209,7 +209,8 @@ const Admin = () => {
               <span className="text-sm font-black text-foreground">{products.length}</span>
             </div>
           </Card>
-          <Card className="p-3 bg-white/50 backdrop-blur-sm border-green-100">
+
+          <Card className="p-3 bg-white/50 backdrop-blur-sm border-green-500 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <ClipboardList className="w-3.5 h-3.5 text-green-500 shrink-0" />
@@ -542,6 +543,7 @@ const Admin = () => {
                   </div>
                   <div className="flex-1 space-y-4 w-full">
                     <div className="grid gap-2"><Label>Nombre Comercial</Label><Input value={localProfile.name} onChange={e => setLocalProfile({...localProfile, name: e.target.value})} /></div>
+                    <div className="grid gap-2"><Label>Nombre Completo (Título de Página)</Label><Input value={localProfile.fullname} onChange={e => setLocalProfile({...localProfile, fullname: e.target.value})} /></div>
                     <div className="grid gap-2"><Label>Bio</Label><Textarea rows={4} value={localProfile.bio} onChange={e => setLocalProfile({...localProfile, bio: e.target.value})} /></div>
                     <div className="grid gap-2"><Label>URL Video TikTok (Embed)</Label><Input placeholder="https://www.tiktok.com/@user/video/..." value={localProfile.tiktok_video_url} onChange={e => setLocalProfile({...localProfile, tiktok_video_url: e.target.value})} /></div>
                     <div className="grid grid-cols-2 gap-4">

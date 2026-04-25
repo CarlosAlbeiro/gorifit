@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3050/api";
 
 interface SectionVisibility {
   hero: boolean;
@@ -53,6 +53,7 @@ interface Product {
 
 interface ProfileData {
   name: string;
+  fullname: string;
   bio: string;
   imageUrl: string;
   stats_years: string;
@@ -118,7 +119,7 @@ const DEFAULT_SECTIONS: SectionVisibility = {
 };
 
 const DEFAULT_PROFILE: ProfileData = {
-  name: "Luisa Restrepo", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg",
+  name: "Luisa Restrepo", fullname: "Luisa Restrepo - Maquilladora Profesional", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg",
   stats_years: "8+", stats_clients: "500+", stats_products: "120+", stats_awards: "15", active: true,
 };
 
@@ -215,6 +216,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const p = pData[0];
           const np = { 
             name: p.name, 
+            fullname: p.fullname || '', 
             bio: p.bio, 
             imageUrl: p.image_url || "/placeholder.svg", 
             stats_years: p.stats_years || "8+", 
@@ -296,7 +298,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch(`${API_URL}/profile`);
       const p = (await res.json())[0];
       if (p) {
-        const payload: any = { name: data.name, bio: data.bio, is_active: data.active, image_url: data.imageUrl, stats_years: data.stats_years, stats_clients: data.stats_clients, stats_products: data.stats_products, stats_awards: data.stats_awards, tiktok_video_url: data.tiktok_video_url };
+        const payload: any = { name: data.name, fullname: data.fullname, bio: data.bio, is_active: data.active, image_url: data.imageUrl, stats_years: data.stats_years, stats_clients: data.stats_clients, stats_products: data.stats_products, stats_awards: data.stats_awards, tiktok_video_url: data.tiktok_video_url };
         Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
         await fetchWithAuth(`${API_URL}/profile/${p.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       }

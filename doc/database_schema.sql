@@ -32,6 +32,7 @@ CREATE TABLE site_sections (
 CREATE TABLE profile (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
+    fullname VARCHAR(200),
     bio TEXT,
     image_url TEXT,
     stats_years VARCHAR(20) DEFAULT '8+',

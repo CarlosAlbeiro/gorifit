@@ -31,7 +31,7 @@ const ContactSection = () => {
         location = `${dataIp.city}, ${dataIp.country_name}`;
       } catch (e) { console.error(e); }
 
-      const res = await fetch(`${API_URL}/requests`, {
+      const res = await fetch(`${API_URL}/public-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, location, status: 'pendiente' })

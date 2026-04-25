@@ -10,7 +10,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
 // Ensure uploads directory exists
@@ -168,6 +168,43 @@ app.use('/api/categories', createCrudRoutes('categories'));
 app.use('/api/services', createCrudRoutes('services'));
 app.use('/api/brands', createCrudRoutes('brands'));
 app.use('/api/requests', createCrudRoutes('service_requests'));
+
+// Custom POST route for requests WITHOUT auth (public)
+const requestRouter = express.Router();
+requestRouter.post('/', async (req, res) => {
+  const fields = Object.keys(req.body);
+  const values = Object.values(req.body);
+  const placeholders = fields.map((_, i) => `$${i + 1}`).join(', ');
+  const query = `INSERT INTO service_requests (${fields.join(', ')}) VALUES (${placeholders}) RETURNING *`;
+  try {
+    const result = await pool.query(query, values);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+requestRouter.get('/', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM service_requests ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+requestRouter.put('/:id', authenticateToken, async (req, res) => {
+  const fields = Object.keys(req.body);
+  const values = Object.values(req.body);
+  const setClause = fields.map((field, i) => `${field} = $${i + 1}`).join(', ');
+  const query = `UPDATE service_requests SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`;
+  try {
+    const result = await pool.query(query, [...values, req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+app.use('/api/public-requests', requestRouter);
 
 // Custom route for products to include brand and category info
 app.get('/api/products', async (req, res) => {
