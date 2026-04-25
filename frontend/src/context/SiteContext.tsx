@@ -432,14 +432,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!path) return "/placeholder.svg";
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     
-    // Normalize path to remove leading slash if base URL has one, or add if missing
+    // Normalize path to add leading slash if missing
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     
-    // In production, API_URL should be the full public URL
-    const baseUrl = API_URL.replace('/api', '');
+    // Use the full API_URL as base to avoid breaking subdomains like "api-luisa..."
+    // This also ensures /api prefix is kept if it's part of the API_URL
+    const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
     
-    // If baseUrl is empty (e.g. API_URL is just '/api'), it will use relative path
-    // which works if frontend and backend are on the same domain
     return `${baseUrl}${cleanPath}`;
   };
 

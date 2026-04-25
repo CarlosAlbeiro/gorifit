@@ -37,6 +37,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use('/uploads', express.static(uploadDir));
+app.use('/api/uploads', express.static(uploadDir)); // Support for proxy/API-prefixed deployments
 
 // Database connection
 const pool = new Pool({
