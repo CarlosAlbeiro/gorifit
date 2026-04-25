@@ -430,7 +430,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getMediaUrl = (path: string | null | undefined) => {
     if (!path) return "/placeholder.svg";
-    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    if (path.startsWith('http') || path.startsWith('data:')) {
+      // Force https if current page is https
+      if (window.location.protocol === 'https:' && path.startsWith('http:')) {
+        return path.replace('http:', 'https:');
+      }
+      return path;
+    }
     
     let cleanPath = path.startsWith('/') ? path : `/${path}`;
     
@@ -440,7 +446,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // Use the full API_URL as base
-    const baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+    let baseUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+    
+    // Force https if current page is https
+    if (window.location.protocol === 'https:' && baseUrl.startsWith('http:')) {
+      baseUrl = baseUrl.replace('http:', 'https:');
+    }
     
     return `${baseUrl}${cleanPath}`;
   };
