@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   LayoutDashboard, Scissors, ShoppingBag, User, Mail, 
-  Settings, Plus, Pencil, Trash2, LogOut, Eye, CheckCircle2, Package, Save, ClipboardList, Clock, MapPin, Phone, Tags, Image as ImageIcon, Search, X, Sun, Moon, Sparkles
+  Settings, Plus, Pencil, Trash2, LogOut, Eye, CheckCircle2, Package, Save, ClipboardList, Clock, MapPin, Phone, Tags, Image as ImageIcon, Search, X, Sun, Moon, Sparkles, Loader2
 } from "lucide-react";
 import { 
   Dialog, DialogContent, DialogDescription, 
@@ -67,6 +67,9 @@ const Admin = () => {
   const [serviceCategoryFilter, setServiceCategoryFilter] = useState<string | null>(null);
   const [requestSearch, setRequestSearch] = useState("");
   const [requestStatusFilter, setRequestStatusFilter] = useState<string | null>(null);
+  const [isWaModalOpen, setIsWaModalOpen] = useState(false);
+  const [waStatus, setWaStatus] = useState<any>({ status: 'disconnected', qr: null });
+  const [waLoading, setWaLoading] = useState(false);
 
   const activeSectionsCount = Object.values(sections).filter(v => v).length;
 
@@ -149,6 +152,38 @@ const Admin = () => {
       fetchRequests();
     } catch (e) { }
   };
+
+  const fetchWaStatus = async () => {
+    try {
+      const res = await fetch(`${API_URL}/whatsapp/status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setWaStatus(data);
+    } catch (e) { }
+  };
+
+  const handleWaLogout = async () => {
+    setWaLoading(true);
+    try {
+      await fetch(`${API_URL}/whatsapp/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      toast.success("WhatsApp desvinculado");
+      fetchWaStatus();
+    } catch (e) { }
+    setWaLoading(false);
+  };
+
+  useEffect(() => {
+    let interval: any;
+    if (isWaModalOpen) {
+      fetchWaStatus();
+      interval = setInterval(fetchWaStatus, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [isWaModalOpen]);
 
   return (
     <div className="min-h-screen bg-secondary/10 p-6 md:p-10">
@@ -491,7 +526,69 @@ const Admin = () => {
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input placeholder="Buscar por teléfono..." className="pl-8" value={requestSearch} onChange={e => setRequestSearch(e.target.value)} />
                 </div>
-                <Button variant="outline" onClick={fetchRequests}><Clock className="w-4 h-4 mr-2" /> Actualizar</Button>
+                 <Button variant="outline" onClick={fetchRequests}><Clock className="w-4 h-4 mr-2" /> Actualizar</Button>
+                
+                <Dialog open={isWaModalOpen} onOpenChange={setIsWaModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                      <Phone className="w-4 h-4 mr-2" /> Configurar WhatsApp
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Automatización WhatsApp</DialogTitle>
+                      <DialogDescription>Configura el envío automático de mensajes.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                      {/* Status & QR */}
+                      <div className="flex flex-col items-center justify-center p-4 bg-secondary/5 rounded-xl border border-dashed">
+                        {waStatus.status === 'connected' ? (
+                          <div className="text-center space-y-2">
+                            <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                              Conectado
+                            </div>
+                            <Button variant="destructive" size="sm" onClick={handleWaLogout} disabled={waLoading}>Desvincular Cuenta</Button>
+                          </div>
+                        ) : waStatus.status === 'qr-ready' && waStatus.qr ? (
+                          <div className="text-center space-y-4">
+                            <p className="text-sm font-medium">Escanea este código con tu WhatsApp:</p>
+                            <img src={waStatus.qr} alt="QR Code" className="w-48 h-48 mx-auto border p-2 bg-white rounded-lg shadow-sm" />
+                            <p className="text-[10px] text-muted-foreground">Esperando escaneo...</p>
+                          </div>
+                        ) : (
+                          <div className="text-center space-y-2">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto text-muted-foreground" />
+                            <p className="text-sm">Iniciando cliente WhatsApp...</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Templates */}
+                      <div className="space-y-4">
+                        <div className="grid gap-2">
+                          <Label>Mensaje para Asesoría (General)</Label>
+                          <Textarea 
+                            value={localProfile.wa_msg_advice || ""} 
+                            onChange={e => setLocalProfile({...localProfile, wa_msg_advice: e.target.value})}
+                            placeholder="Mensaje cuando piden asesoría general..."
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Mensaje para Productos</Label>
+                          <Textarea 
+                            value={localProfile.wa_msg_product || ""} 
+                            onChange={e => setLocalProfile({...localProfile, wa_msg_product: e.target.value})}
+                            placeholder="Usa {product} para el nombre del producto..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleSaveProfile} className="w-full gradient-primary">Guardar Plantillas</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             <div className="flex gap-2 pb-2">

@@ -68,6 +68,8 @@ interface ProfileData {
   stats_products: string;
   stats_awards: string;
   tiktok_video_url?: string;
+  wa_msg_advice?: string;
+  wa_msg_product?: string;
   active: boolean;
 }
 
@@ -242,6 +244,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             stats_products: p.stats_products || "120+", 
             stats_awards: p.stats_awards || "15", 
             tiktok_video_url: p.tiktok_video_url || "",
+            wa_msg_advice: p.wa_msg_advice || 'Hola! He visto que solicitaste una asesoría personalizada. ¿En qué puedo ayudarte?',
+            wa_msg_product: p.wa_msg_product || 'Hola! Me interesa información sobre el producto: {product}.',
             active: p.is_active 
           };
           setProfile(np);
@@ -327,7 +331,9 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           stats_clients: data.stats_clients,
           stats_products: data.stats_products,
           stats_awards: data.stats_awards,
-          tiktok_video_url: data.tiktok_video_url
+          tiktok_video_url: data.tiktok_video_url,
+          wa_msg_advice: data.wa_msg_advice,
+          wa_msg_product: data.wa_msg_product
         };
         // Remove undefined keys to avoid overwriting with null
         Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);

@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { initWhatsApp, getStatus, logoutWhatsApp } = require('./whatsapp');
 
 const app = express();
 const PORT = process.env.PORT || 3050;
@@ -234,6 +235,18 @@ app.get('/api/products', async (req, res) => {
 
 app.use('/api/products', createCrudRoutes('products'));
 
+// WhatsApp Endpoints
+app.get('/api/whatsapp/status', authenticateToken, (req, res) => {
+  res.json(getStatus());
+});
+
+app.post('/api/whatsapp/logout', authenticateToken, async (req, res) => {
+  await logoutWhatsApp(pool);
+  res.json({ message: 'Logged out from WhatsApp' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  // Initialize WhatsApp Client after server starts
+  initWhatsApp(pool);
 });
