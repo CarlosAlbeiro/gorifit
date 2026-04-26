@@ -1,11 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export const API_URL = (() => {
-  const url = import.meta.env.VITE_API_URL || "http://localhost:3050/api";
-  if (typeof window !== 'undefined' && window.location.protocol === 'https:' && url.startsWith('http:')) {
-    return url.replace('http:', 'https:');
+  // 1. Prioritize build-time environment variable
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  
+  // 2. Smart detection for production environment
+  if (typeof window !== 'undefined' && window.location.hostname.includes('galeotek.site')) {
+    const protocol = window.location.protocol;
+    // Auto-resolve to api- subdomain on the same domain
+    return `${protocol}//api-luisa-restrepo.galeotek.site/api`;
   }
-  return url;
+  
+  // 3. Fallback to local development
+  return "http://localhost:3050/api";
 })();
 
 interface SectionVisibility {
