@@ -53,10 +53,10 @@ const ProfileSection = () => {
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Photo/Video Slider */}
-          <div className="relative group w-full max-w-[260px] mx-auto">
+          <div className="relative group w-full max-w-[320px] mx-auto">
             <div className="absolute -inset-4 gradient-primary rounded-2xl opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
             
-            <div className="relative rounded-2xl shadow-2xl overflow-hidden aspect-[9/16] bg-secondary/10">
+            <div className="relative rounded-2xl shadow-2xl overflow-hidden aspect-[9/16] bg-secondary/10 border border-primary/10">
               {slides.map((slide, idx) => (
                 <div 
                   key={idx}
@@ -66,18 +66,11 @@ const ProfileSection = () => {
                   )}
                 >
                   {slide.type === 'image' ? (
-                    <div className="relative w-full h-full">
-                      <img
-                        src={slide.content}
-                        alt={profile.name}
-                        className="w-full h-full object-cover"
-                        style={{
-                          maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                          WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
-                    </div>
+                    <img
+                      src={slide.content}
+                      alt={profile.name}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div 
                       className="w-full h-full overflow-hidden flex items-center justify-center bg-black"
