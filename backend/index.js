@@ -175,7 +175,7 @@ app.use('/api/requests', createCrudRoutes('service_requests'));
 // Custom POST route for requests WITHOUT auth (public)
 const requestRouter = express.Router();
 requestRouter.post('/', async (req, res) => {
-  const { phone, location, consentGiven, policyVersion, productInfo } = req.body;
+  const { phone, location, consentGiven, policyVersion, productInfo, productImage } = req.body;
   const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
   if (!consentGiven) {
@@ -186,8 +186,8 @@ requestRouter.post('/', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'INSERT INTO service_requests (phone, location, consent_given, ip_address, policy_version, source, product_info) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [phone, location, true, ipAddress, policyVersion || 'v1.0', productInfo ? 'product' : 'web', productInfo]
+      'INSERT INTO service_requests (phone, location, consent_given, ip_address, policy_version, source, product_info, product_image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [phone, location, true, ipAddress, policyVersion || 'v1.0', productInfo ? 'product' : 'web', productInfo, productImage]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

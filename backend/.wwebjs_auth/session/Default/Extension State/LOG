@@ -1,2 +1,3 @@
-2026/04/25-19:17:09.094 52a8 Creating DB C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Extension State since it was missing.
-2026/04/25-19:17:09.107 52a8 Reusing MANIFEST C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Extension State/MANIFEST-000001
+2026/04/25-20:00:23.353 4c50 Reusing MANIFEST C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Extension State/MANIFEST-000001
+2026/04/25-20:00:23.354 4c50 Recovering log #3
+2026/04/25-20:00:23.355 4c50 Reusing old log C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Extension State/000003.log 

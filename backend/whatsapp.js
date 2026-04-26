@@ -1,6 +1,8 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const { Pool } = require('pg');
+const path = require('path');
+const fs = require('fs');
 
 let client;
 let waStatus = 'disconnected';
@@ -72,7 +74,30 @@ const initWhatsApp = (pool) => {
 
         console.log(`Sending WhatsApp to ${chatId}...`);
         try {
-          await client.sendMessage(chatId, message);
+          // If there is a product image, send it as media
+          if (request.product_image) {
+            let media;
+            if (request.product_image.startsWith('http')) {
+              media = await MessageMedia.fromUrl(request.product_image);
+            } else {
+              // Local file - need to resolve path
+              // The request.product_image usually starts with /uploads/
+              const relativePath = request.product_image.replace(/^\/api/, ''); // Remove /api prefix if present
+              const fullPath = path.join(__dirname, relativePath);
+              if (fs.existsSync(fullPath)) {
+                media = MessageMedia.fromFilePath(fullPath);
+              }
+            }
+
+            if (media) {
+              await client.sendMessage(chatId, media, { caption: message });
+            } else {
+              await client.sendMessage(chatId, message);
+            }
+          } else {
+            await client.sendMessage(chatId, message);
+          }
+
           // Mark as completed
           await pool.query("UPDATE service_requests SET status = 'completado' WHERE id = $1", [request.id]);
           console.log(`Message sent to ${request.phone}`);

@@ -530,7 +530,7 @@ const Admin = () => {
                 
                 <Dialog open={isWaModalOpen} onOpenChange={setIsWaModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                    <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-500 hover:text-white transition-colors">
                       <Phone className="w-4 h-4 mr-2" /> Configurar WhatsApp
                     </Button>
                   </DialogTrigger>

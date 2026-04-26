@@ -43,7 +43,8 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
           location, 
           consentGiven: true, 
           policyVersion: 'v1.0',
-          productInfo: `Producto: ${product.name} | Marca: ${product.brand_name || 'N/A'} | Ref: ${product.reference || 'N/A'}`
+          productInfo: `Producto: ${product.name} | Marca: ${product.brand_name || 'N/A'} | Ref: ${product.reference || 'N/A'}`,
+          productImage: product.image
         })
       });
 

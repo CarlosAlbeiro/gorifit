@@ -1,12 +1,31 @@
 import { Award, Heart, Sparkles, Star, Instagram, Facebook, Youtube, Video, ChevronLeft, ChevronRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSite } from "@/context/SiteContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const ProfileSection = () => {
   const { profile, contact, getMediaUrl } = useSite();
+  const [tiktokHtml, setTiktokHtml] = useState<string | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const fetchTikTok = async () => {
+      if (!profile.tiktok_video_url) return;
+      try {
+        const res = await fetch(`https://www.tiktok.com/oembed?url=${profile.tiktok_video_url}`);
+        const data = await res.json();
+        if (data.html) {
+          setTiktokHtml(data.html);
+          const script = document.createElement('script');
+          script.src = "https://www.tiktok.com/embed.js";
+          script.async = true;
+          document.body.appendChild(script);
+        }
+      } catch (e) { console.error("TikTok OEmbed error:", e); }
+    };
+    fetchTikTok();
+  }, [profile.tiktok_video_url]);
 
   if (!profile.active) return null;
 
@@ -24,17 +43,9 @@ const ProfileSection = () => {
     { icon: Youtube, label: "YouTube", url: contact.youtube_url, active: contact.youtube_active, color: "hover:text-red-600" },
   ].filter(s => s.active && s.url);
 
-  const getTikTokEmbedUrl = (url?: string) => {
-    if (!url) return null;
-    const match = url.match(/video\/(\d+)/) || url.match(/\/v\/(\d+)/) || url.match(/(\d{15,})/);
-    if (match) return `https://www.tiktok.com/embed/v2/${match[1]}?autoplay=1&rel=0`;
-    return null;
-  };
-
-  const tiktokEmbed = getTikTokEmbedUrl(profile.tiktok_video_url);
   const slides = [
     { type: 'image', content: getMediaUrl(profile.imageUrl) },
-    ...(tiktokEmbed ? [{ type: 'video', content: tiktokEmbed }] : [])
+    ...(tiktokHtml ? [{ type: 'video', content: tiktokHtml }] : [])
   ];
 
   return (
@@ -55,18 +66,23 @@ const ProfileSection = () => {
                   )}
                 >
                   {slide.type === 'image' ? (
-                    <img
-                      src={slide.content}
-                      alt={profile.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <div className="relative w-full h-full">
+                      <img
+                        src={slide.content}
+                        alt={profile.name}
+                        className="w-full h-full object-cover"
+                        style={{
+                          maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+                          WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)'
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
+                    </div>
                   ) : (
-                    <iframe
-                      src={slide.content}
-                      className="w-full h-full"
-                      allow="autoplay; encrypted-media"
-                      allowFullScreen
-                    ></iframe>
+                    <div 
+                      className="w-full h-full overflow-hidden flex items-center justify-center bg-black"
+                      dangerouslySetInnerHTML={{ __html: slide.content }} 
+                    />
                   )}
                 </div>
               ))}

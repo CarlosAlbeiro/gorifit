@@ -1,2 +1,3 @@
-2026/04/25-19:17:08.744 52a8 Creating DB C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Sync Data\LevelDB since it was missing.
-2026/04/25-19:17:08.774 52a8 Reusing MANIFEST C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Sync Data\LevelDB/MANIFEST-000001
+2026/04/25-20:00:23.140 4c50 Reusing MANIFEST C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Sync Data\LevelDB/MANIFEST-000001
+2026/04/25-20:00:23.147 4c50 Recovering log #3
+2026/04/25-20:00:23.148 4c50 Reusing old log C:\Users\DEV.CAGG\Desktop\luisa_restrepo\backend\.wwebjs_auth\session\Default\Sync Data\LevelDB/000003.log 
