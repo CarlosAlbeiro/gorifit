@@ -74,33 +74,43 @@ const initWhatsApp = (pool) => {
 
         console.log(`Sending WhatsApp to ${chatId}...`);
         try {
-          // If there is a product image, send it as media
-          if (request.product_image) {
-            let media;
-            if (request.product_image.startsWith('http')) {
-              media = await MessageMedia.fromUrl(request.product_image);
-            } else {
-              // Local file - need to resolve path
-              // The request.product_image usually starts with /uploads/
-              const relativePath = request.product_image.replace(/^\/api/, ''); // Remove /api prefix if present
-              const fullPath = path.join(__dirname, relativePath);
-              if (fs.existsSync(fullPath)) {
-                media = MessageMedia.fromFilePath(fullPath);
-              }
-            }
+          let messageSent = false;
 
-            if (media) {
-              await client.sendMessage(chatId, media, { caption: message });
-            } else {
-              await client.sendMessage(chatId, message);
+          // If there is a product image, try to send it as media
+          if (request.product_image && request.product_image !== '/placeholder.png') {
+            try {
+              let media;
+              if (request.product_image.startsWith('http')) {
+                media = await MessageMedia.fromUrl(request.product_image);
+              } else {
+                // Local file resolution
+                const cleanPath = request.product_image.replace(/^\/api\//, '').replace(/^\//, '');
+                const fullPath = path.join(__dirname, cleanPath);
+                
+                if (fs.existsSync(fullPath)) {
+                  media = MessageMedia.fromFilePath(fullPath);
+                } else {
+                  console.log(`Image not found at: ${fullPath}`);
+                }
+              }
+
+              if (media) {
+                await client.sendMessage(chatId, media, { caption: message });
+                messageSent = true;
+              }
+            } catch (mediaErr) {
+              console.error("Error creating/sending media:", mediaErr.message);
             }
-          } else {
+          }
+
+          // Fallback: If media failed or wasn't applicable, send plain text
+          if (!messageSent) {
             await client.sendMessage(chatId, message);
           }
 
           // Mark as completed
           await pool.query("UPDATE service_requests SET status = 'completado' WHERE id = $1", [request.id]);
-          console.log(`Message sent to ${request.phone}`);
+          console.log(`Message sent successfully to ${request.phone}`);
         } catch (sendErr) {
           console.error(`Failed to send message to ${request.phone}:`, sendErr.message);
         }
@@ -116,13 +126,27 @@ const getStatus = () => ({ status: waStatus, qr: lastQr });
 const logoutWhatsApp = async (pool) => {
     if (client) {
         try {
-            await client.logout();
+            console.log('Logging out from WhatsApp...');
             waStatus = 'disconnected';
             lastQr = null;
             await pool.query('UPDATE whatsapp_config SET status = $1, qr_code = NULL, last_update = NOW()', [waStatus]);
+            
+            await client.logout();
+            await client.destroy();
+            
+            // Re-initialize to get a new QR code
+            console.log('Re-initializing WhatsApp client...');
+            initWhatsApp(pool);
         } catch (e) {
             console.error('Error logging out from WhatsApp:', e);
+            // Even if logout fails, try to destroy and re-init
+            try { 
+              await client.destroy(); 
+              initWhatsApp(pool);
+            } catch (e2) { console.error('Critical error re-initializing:', e2); }
         }
+    } else {
+      initWhatsApp(pool);
     }
 };
 
