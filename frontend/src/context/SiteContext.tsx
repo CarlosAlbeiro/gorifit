@@ -435,7 +435,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getMediaUrl = (path: string | null | undefined) => {
-    if (!path) return "/placeholder.svg";
+    if (!path) return "/placeholder.png";
     if (path.startsWith('http') || path.startsWith('data:')) {
       // Force https if current page is https
       if (window.location.protocol === 'https:' && path.startsWith('http:')) {
