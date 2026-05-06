@@ -55,8 +55,11 @@ const initWhatsApp = (pool) => {
 
     try {
       const result = await pool.query("SELECT * FROM service_requests WHERE status = 'pendiente' LIMIT 5");
-      const profileRes = await pool.query("SELECT wa_msg_advice, wa_msg_product FROM profile LIMIT 1");
+      const profileRes = await pool.query("SELECT wa_msg_advice, wa_msg_product, auto_response_active FROM profile LIMIT 1");
       const config = profileRes.rows[0];
+
+      if (!config.auto_response_active) return;
+
 
       for (const request of result.rows) {
         let message = '';

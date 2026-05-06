@@ -21,35 +21,34 @@ const ServicesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {activeServices.map((service, i) => {
             const categoryName = categories.find(c => c.id === service.category_id)?.name || "General";
             return (
               <div
                 key={service.id}
-                className="group bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 animate-fade-in-up"
+                className="group bg-card border border-border rounded-3xl overflow-hidden shadow-card hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="aspect-[4/3] overflow-hidden">
+                <div className="aspect-[3/4] overflow-hidden relative">
                   <img
                     src={getMediaUrl(service.image)}
                     alt={service.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
                   />
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded">
-                      {categoryName}
-                    </span>
-                    <span className="font-bold text-lg text-foreground">
-                      ${service.price.toLocaleString()}
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                    <span className="text-white font-bold text-lg">${service.price.toLocaleString()}</span>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                </div>
+                <div className="p-5">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-1 block">
+                    {categoryName}
+                  </span>
+                  <h3 className="text-lg font-bold mb-1 leading-tight group-hover:text-primary transition-colors">
                     {service.name}
                   </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-[11px] leading-relaxed line-clamp-2">
                     {service.description}
                   </p>
                 </div>
@@ -57,6 +56,7 @@ const ServicesSection = () => {
             );
           })}
         </div>
+
       </div>
     </section>
   );

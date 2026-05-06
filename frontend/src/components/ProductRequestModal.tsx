@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Send, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { API_URL, useSite } from "@/context/SiteContext";
+import { LoadingPage } from "./StatusPages";
 
 interface ProductRequestModalProps {
   product: any | null;
@@ -17,8 +18,9 @@ interface ProductRequestModalProps {
 
 const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOpen, onClose }) => {
   const { getMediaUrl } = useSite();
-  const [phone, setPhone] = useState("");
-  const [accepted, setAccepted] = useState(false);
+  const [phone, setPhone] = useState(() => localStorage.getItem("user_phone") || "");
+  const [countryCode, setCountryCode] = useState("+57");
+  const [accepted, setAccepted] = useState(() => localStorage.getItem("user_consent") === "true");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,8 +28,13 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
     if (!phone) return toast.error("Ingresa tu número");
     if (!accepted) return toast.error("Debes aceptar el tratamiento de datos");
 
+    const fullPhone = `${countryCode}${phone.replace(/\s+/g, '')}`;
+    
     setIsSubmitting(true);
     try {
+      localStorage.setItem("user_phone", phone);
+      localStorage.setItem("user_consent", "true");
+
       let location = "Desconocida";
       try {
         const resIp = await fetch('https://ipapi.co/json/');
@@ -39,8 +46,9 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          phone, 
+          phone: fullPhone, 
           location, 
+
           consentGiven: true, 
           policyVersion: 'v1.0',
           productInfo: `Producto: ${product.name} | Marca: ${product.brand_name || 'N/A'} | Ref: ${product.reference || 'N/A'}`,
@@ -69,6 +77,8 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] rounded-3xl">
+        {isSubmitting && <LoadingPage message="Enviando solicitud..." submessage="Un momento por favor" />}
+
         <DialogHeader>
           <div className="w-12 h-12 gradient-primary rounded-2xl flex items-center justify-center text-white mb-4 shadow-soft">
             <ShoppingBag size={24} />
@@ -85,7 +95,9 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
               src={getMediaUrl(product.image)} 
               alt={product.name} 
               className="w-16 h-16 object-cover rounded-xl shadow-sm"
+              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
             />
+
             <div>
               <p className="text-[10px] font-black text-primary uppercase tracking-tighter leading-none mb-1">
                 {product.brand_name || "Producto Profesional"}
@@ -98,15 +110,32 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">WhatsApp</label>
-              <Input 
-                placeholder="Tu número de teléfono" 
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="rounded-xl h-12 bg-card border-border focus-visible:ring-primary/30"
-                required
-              />
+              <div className="flex gap-2">
+                <select 
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-24 rounded-xl h-12 bg-card border border-border focus:ring-2 focus:ring-primary/20 outline-none px-2 text-sm font-bold"
+                >
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+51">🇵🇪 +51</option>
+                  <option value="+58">🇻🇪 +58</option>
+                </select>
+                <Input 
+                  placeholder="Número de teléfono" 
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="flex-1 rounded-xl h-12 bg-card border-border focus-visible:ring-primary/30 font-bold"
+                  required
+                />
+              </div>
             </div>
+
 
             <div className="flex items-start gap-3 bg-secondary/5 p-3 rounded-xl border border-border/50">
               <input 

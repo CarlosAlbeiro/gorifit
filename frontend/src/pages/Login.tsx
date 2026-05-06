@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+import { LoadingPage } from "@/components/StatusPages";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +32,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
+    <>
+      {isLoading && <LoadingPage message="Iniciando sesión..." submessage="Validando tus credenciales" />}
+      <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4">
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
@@ -68,7 +73,9 @@ const Login = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
+
 
 export default Login;

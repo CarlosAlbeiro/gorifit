@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ShoppingBag, Loader2, Search, X } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Loader2, Search, X, Sparkles } from "lucide-react";
+
 import { useSite } from "@/context/SiteContext";
 import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,10 @@ const CategoryPage = () => {
   );
 
   const filtered = useMemo(() => {
-    let result = products.filter((p) => p.category_id === category?.id && p.active);
+    let result = products
+      .filter((p) => p.category_id === category?.id && p.active)
+      .sort((a, b) => (b.is_promotion ? 1 : 0) - (a.is_promotion ? 1 : 0));
+
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
       result = result.filter(p => 
@@ -121,15 +125,21 @@ const CategoryPage = () => {
                     alt={product.name}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
                   />
+
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
                 <div className="p-3 md:p-4 flex flex-col flex-1">
                   <div className="flex-1">
                     {product.brand_name && (
-                      <p className="text-[10px] font-black text-primary mb-1 uppercase tracking-tighter">{product.brand_name}</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] font-black text-primary uppercase tracking-tighter">{product.brand_name}</p>
+                        {product.is_promotion && <Sparkles className="w-3 h-3 text-amber-500" />}
+                      </div>
                     )}
+
                     <h3 className="font-heading text-sm font-bold text-foreground line-clamp-2 leading-tight min-h-[2.5rem]">
                       {product.name}
                     </h3>

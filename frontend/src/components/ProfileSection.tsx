@@ -51,12 +51,13 @@ const ProfileSection = () => {
   return (
     <section id="perfil" className="py-8 bg-background overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-16 items-center">
           {/* Photo/Video Slider */}
-          <div className="relative group w-full max-w-[320px] mx-auto">
-            <div className="absolute -inset-4 gradient-primary rounded-2xl opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500" />
+          <div className="relative group w-full max-w-[450px] mx-auto lg:ml-0">
+            <div className="absolute -inset-6 gradient-primary rounded-3xl opacity-20 group-hover:opacity-40 blur-2xl transition-all duration-700 group-hover:scale-105" />
             
-            <div className="relative rounded-2xl shadow-2xl overflow-hidden aspect-[9/16] bg-secondary/10 border border-primary/10">
+            <div className="relative rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden aspect-[9/16] bg-secondary/10 border-4 border-white/20 backdrop-blur-sm">
+
               {slides.map((slide, idx) => (
                 <div 
                   key={idx}
@@ -70,7 +71,9 @@ const ProfileSection = () => {
                       src={slide.content}
                       alt={profile.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
                     />
+
                   ) : (
                     <div 
                       className="w-full h-full overflow-hidden flex items-center justify-center bg-black"

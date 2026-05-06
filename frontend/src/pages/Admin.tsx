@@ -16,9 +16,24 @@ import {
   Dialog, DialogContent, DialogDescription, 
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
+
+import { LoadingPage } from "@/components/StatusPages";
+
 const Admin = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const { 
     sections, setSectionVisibility, 
     profile, updateProfile, 
@@ -27,8 +42,10 @@ const Admin = () => {
     products, addProduct, updateProduct, deleteProduct,
     categories, addCategory, updateCategory, deleteCategory,
     brands, addBrand, updateBrand, deleteBrand,
+    clients, addClient, updateClient, deleteClient,
     logout, token, theme, toggleTheme, getMediaUrl
   } = useSite();
+
 
   const [localProfile, setLocalProfile] = useState(profile);
   const [localContact, setLocalContact] = useState(contact);
@@ -50,6 +67,8 @@ const Admin = () => {
   useEffect(() => { fetchRequests(); }, []);
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<any>(null);
@@ -60,93 +79,178 @@ const Admin = () => {
   
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<string | null>(null);
+  const [catalogStatusFilter, setCatalogStatusFilter] = useState<boolean | null>(null);
   const [categorySearch, setCategorySearch] = useState("");
   const [categoryTypeFilter, setCategoryTypeFilter] = useState<string | null>(null);
+  const [categoryStatusFilter, setCategoryStatusFilter] = useState<boolean | null>(null);
   const [brandSearch, setBrandSearch] = useState("");
+  const [brandStatusFilter, setBrandStatusFilter] = useState<boolean | null>(null);
   const [serviceSearch, setServiceSearch] = useState("");
   const [serviceCategoryFilter, setServiceCategoryFilter] = useState<string | null>(null);
+  const [serviceStatusFilter, setServiceStatusFilter] = useState<boolean | null>(null);
   const [requestSearch, setRequestSearch] = useState("");
   const [requestStatusFilter, setRequestStatusFilter] = useState<string | null>(null);
+
   const [isWaModalOpen, setIsWaModalOpen] = useState(false);
   const [waStatus, setWaStatus] = useState<any>({ status: 'disconnected', qr: null });
   const [waLoading, setWaLoading] = useState(false);
+  const [deleteInfo, setDeleteInfo] = useState<{ id: string | number, type: 'category' | 'brand' | 'service' | 'product' | 'request', name: string } | null>(null);
+
 
   const activeSectionsCount = Object.values(sections).filter(v => v).length;
 
   const handleSaveProfile = async () => {
-    await updateProfile(localProfile);
-    toast.success("Perfil actualizado");
+    const tid = toast.loading("Guardando perfil...");
+    try {
+      await updateProfile(localProfile);
+      toast.success("Perfil actualizado", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
 
+
+
   const handleSaveContact = async () => {
-    await updateContact(localContact);
-    toast.success("Contacto actualizado");
+    const tid = toast.loading("Guardando contacto...");
+    try {
+      await updateContact(localContact);
+      toast.success("Información de contacto guardada", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
+
 
   const handleSaveCategory = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = { name: formData.get("name") as string, type: formData.get("type") as any, icon: formData.get("icon") as string, active: true };
-    if (editingCategory) await updateCategory(editingCategory.id, data);
-    else await addCategory(data);
-    setIsCategoryModalOpen(false);
+    const tid = toast.loading("Guardando categoría...");
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = { name: formData.get("name") as string, type: formData.get("type") as any, icon: formData.get("icon") as string, active: true };
+      if (editingCategory) await updateCategory(editingCategory.id, data);
+      else await addCategory(data);
+      setIsCategoryModalOpen(false);
+      toast.success(editingCategory ? "Categoría actualizada" : "Categoría creada", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
+
+
 
   const handleSaveBrand = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = { name: formData.get("name") as string, description: formData.get("description") as string, active: true };
-    if (editingBrand) await updateBrand(editingBrand.id, data);
-    else await addBrand(data);
-    setIsBrandModalOpen(false);
+    const tid = toast.loading("Guardando marca...");
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = { name: formData.get("name") as string, description: formData.get("description") as string, active: true };
+      if (editingBrand) await updateBrand(editingBrand.id, data);
+      else await addBrand(data);
+      setIsBrandModalOpen(false);
+      toast.success(editingBrand ? "Marca actualizada" : "Marca creada", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
+
+
 
   const handleSaveService = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = { name: formData.get("name") as string, description: formData.get("description") as string, price: parseFloat(formData.get("price") as string), category_id: formData.get("category_id") as string, image: formData.get("image") as string, active: true };
-    if (editingService) await updateService(editingService.id, data);
-    else await addService(data);
-    setIsServiceModalOpen(false);
+    const tid = toast.loading("Guardando servicio...");
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = { name: formData.get("name") as string, description: formData.get("description") as string, price: parseFloat(formData.get("price") as string), category_id: formData.get("category_id") as string, image: formData.get("image") as string, active: true };
+      if (editingService) await updateService(editingService.id, data);
+      else await addService(data);
+      setIsServiceModalOpen(false);
+      toast.success(editingService ? "Servicio actualizado" : "Servicio creado", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
+
+
 
   const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      price: parseFloat(formData.get("price") as string),
-      category_id: formData.get("category_id") as string,
-      brand_id: formData.get("brand_id") as string,
-      reference: formData.get("reference") as string,
-      notes: formData.get("notes") as string,
-      image: formData.get("image") as string,
-      active: true
-    };
-    if (editingProduct) await updateProduct(editingProduct.id, data);
-    else await addProduct(data);
-    setIsProductModalOpen(false);
+    const tid = toast.loading("Guardando producto...");
+    try {
+      const formData = new FormData(e.currentTarget);
+      const data = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        price: parseFloat(formData.get("price") as string),
+        category_id: formData.get("category_id") as string,
+        brand_id: formData.get("brand_id") as string,
+        reference: formData.get("reference") as string,
+        notes: formData.get("notes") as string,
+        image: formData.get("image") as string,
+        is_promotion: (e.currentTarget.elements.namedItem("is_promotion") as HTMLInputElement).checked,
+        active: true
+      };
+
+      if (editingProduct) await updateProduct(editingProduct.id, data);
+      else await addProduct(data);
+      setIsProductModalOpen(false);
+      toast.success(editingProduct ? "Producto actualizado" : "Producto creado", { id: tid });
+    } catch (e) {
+      toast.error("Error al guardar", { id: tid });
+    }
   };
+
+
 
   const handleImageUpload = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
+    const toastId = toast.loading("Subiendo imagen...");
     try {
       const res = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
+      
+      if (!res.ok) throw new Error("Upload failed");
+      
       const data = await res.json();
+      toast.success("Imagen subida correctamente", { id: toastId });
       return data.imageUrl;
     } catch (e) {
-      toast.error("Error al subir imagen");
+      toast.error("Error al subir imagen", { id: toastId });
       return null;
     }
   };
 
+
+
+  const handleConfirmDelete = async () => {
+    if (!deleteInfo) return;
+    const tid = toast.loading(`Eliminando ${deleteInfo.name}...`);
+    try {
+      if (deleteInfo.type === 'category') await deleteCategory(deleteInfo.id);
+      else if (deleteInfo.type === 'brand') await deleteBrand(deleteInfo.id);
+      else if (deleteInfo.type === 'service') await deleteService(deleteInfo.id);
+      else if (deleteInfo.type === 'product') await deleteProduct(deleteInfo.id);
+      else if (deleteInfo.type === 'client') await deleteClient(deleteInfo.id);
+      else if (deleteInfo.type === 'request') {
+
+         await fetch(`${API_URL}/requests/${deleteInfo.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+         fetchRequests();
+      }
+      toast.success("Eliminado correctamente", { id: tid });
+    } catch (e) {
+      toast.error("Error al eliminar", { id: tid });
+    } finally {
+      setDeleteInfo(null);
+    }
+  };
+
+
   const updateRequestStatus = async (id: string, status: string) => {
+
     try {
       await fetch(`${API_URL}/requests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ status }) });
       fetchRequests();
@@ -186,7 +290,11 @@ const Admin = () => {
   }, [isWaModalOpen]);
 
   return (
-    <div className="min-h-screen bg-secondary/10 p-6 md:p-10">
+    <>
+      {isProcessing && <LoadingPage />}
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="bg-secondary/10 p-6 md:p-10">
+
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex items-center gap-3">
@@ -264,6 +372,7 @@ const Admin = () => {
             <TabsTrigger value="servicios" className="flex-1 min-w-[100px]"><Scissors className="w-4 h-4 mr-2" /> Servicios</TabsTrigger>
             <TabsTrigger value="catalogo" className="flex-1 min-w-[100px]"><ShoppingBag className="w-4 h-4 mr-2" /> Catálogo</TabsTrigger>
             <TabsTrigger value="solicitudes" className="flex-1 min-w-[100px]"><ClipboardList className="w-4 h-4 mr-2" /> Solicitudes</TabsTrigger>
+            <TabsTrigger value="clientes" className="flex-1 min-w-[100px]"><User className="w-4 h-4 mr-2" /> Clientes</TabsTrigger>
             <TabsTrigger value="perfil" className="flex-1 min-w-[100px]"><User className="w-4 h-4 mr-2" /> Perfil</TabsTrigger>
             <TabsTrigger value="contacto" className="flex-1 min-w-[100px]"><Mail className="w-4 h-4 mr-2" /> Contacto</TabsTrigger>
           </TabsList>
@@ -299,10 +408,17 @@ const Admin = () => {
                 </Dialog>
               </div>
             </div>
-            <div className="flex gap-2 pb-2">
-              <Button size="sm" variant={categoryTypeFilter === null ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter(null)}>Todas</Button>
-              <Button size="sm" variant={categoryTypeFilter === 'service' ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter('service')}>Servicios</Button>
-              <Button size="sm" variant={categoryTypeFilter === 'product' ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter('product')}>Productos</Button>
+            <div className="flex flex-wrap gap-2 pb-2 justify-between items-center">
+              <div className="flex gap-2">
+                <Button size="sm" variant={categoryTypeFilter === null ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter(null)}>Todas</Button>
+                <Button size="sm" variant={categoryTypeFilter === 'service' ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter('service')}>Servicios</Button>
+                <Button size="sm" variant={categoryTypeFilter === 'product' ? "default" : "outline"} className="rounded-full" onClick={() => setCategoryTypeFilter('product')}>Productos</Button>
+              </div>
+              <div className="flex gap-2 bg-secondary/10 p-1 rounded-full border">
+                <Button size="sm" variant={categoryStatusFilter === null ? "ghost" : "outline"} className={`rounded-full h-8 ${categoryStatusFilter === null ? 'bg-background shadow-sm' : ''}`} onClick={() => setCategoryStatusFilter(null)}>Todos</Button>
+                <Button size="sm" variant={categoryStatusFilter === true ? "ghost" : "outline"} className={`rounded-full h-8 ${categoryStatusFilter === true ? 'bg-background shadow-sm' : ''}`} onClick={() => setCategoryStatusFilter(true)}>Activos</Button>
+                <Button size="sm" variant={categoryStatusFilter === false ? "ghost" : "outline"} className={`rounded-full h-8 ${categoryStatusFilter === false ? 'bg-background shadow-sm' : ''}`} onClick={() => setCategoryStatusFilter(false)}>Inactivos</Button>
+              </div>
             </div>
             <Card className="overflow-hidden">
               <div className="max-h-[400px] overflow-y-auto">
@@ -313,12 +429,22 @@ const Admin = () => {
                   <TableBody>
                     {categories
                       .filter(c => !categoryTypeFilter || c.type === categoryTypeFilter)
+                      .filter(c => categoryStatusFilter === null || c.active === categoryStatusFilter)
                       .filter(c => !categorySearch || c.name.toLowerCase().includes(categorySearch.toLowerCase()))
                       .map(c => (
+
                         <TableRow key={c.id}><TableCell className="text-2xl">{c.icon || '🛍️'}</TableCell><TableCell>{c.name}</TableCell><TableCell className="capitalize">{c.type}</TableCell>
-                        <TableCell><Switch checked={c.active} onCheckedChange={v => updateCategory(c.id, { active: v })} /></TableCell>
-                        <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => { setEditingCategory(c); setIsCategoryModalOpen(true); }}><Pencil className="w-4 h-4" /></Button><Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteCategory(c.id)}><Trash2 className="w-4 h-4" /></Button></TableCell></TableRow>
-                      ))}
+                        <TableCell><Switch checked={c.active} onCheckedChange={v => updateCategory(c.id, { ...c, active: v })} /></TableCell>
+
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { setEditingCategory(c); setIsCategoryModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: c.id, type: 'category', name: c.name })}><Trash2 className="w-4 h-4" /></Button>
+
+
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
                   </TableBody>
                 </Table>
               </div>
@@ -346,6 +472,13 @@ const Admin = () => {
                 </Dialog>
               </div>
             </div>
+            <div className="flex gap-2 pb-2 justify-end">
+              <div className="flex gap-2 bg-secondary/10 p-1 rounded-full border">
+                <Button size="sm" variant={brandStatusFilter === null ? "ghost" : "outline"} className={`rounded-full h-8 ${brandStatusFilter === null ? 'bg-background shadow-sm' : ''}`} onClick={() => setBrandStatusFilter(null)}>Todos</Button>
+                <Button size="sm" variant={brandStatusFilter === true ? "ghost" : "outline"} className={`rounded-full h-8 ${brandStatusFilter === true ? 'bg-background shadow-sm' : ''}`} onClick={() => setBrandStatusFilter(true)}>Activos</Button>
+                <Button size="sm" variant={brandStatusFilter === false ? "ghost" : "outline"} className={`rounded-full h-8 ${brandStatusFilter === false ? 'bg-background shadow-sm' : ''}`} onClick={() => setBrandStatusFilter(false)}>Inactivos</Button>
+              </div>
+            </div>
             <Card className="overflow-hidden">
               <div className="max-h-[400px] overflow-y-auto">
                 <Table>
@@ -354,12 +487,22 @@ const Admin = () => {
                   </TableHeader>
                   <TableBody>
                     {brands
+                      .filter(b => brandStatusFilter === null || b.active === brandStatusFilter)
                       .filter(b => !brandSearch || b.name.toLowerCase().includes(brandSearch.toLowerCase()))
                       .map(b => (
+
                         <TableRow key={b.id}><TableCell className="font-bold">{b.name}</TableCell>
-                        <TableCell><Switch checked={b.active} onCheckedChange={v => updateBrand(b.id, { active: v })} /></TableCell>
-                        <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => { setEditingBrand(b); setIsBrandModalOpen(true); }}><Pencil className="w-4 h-4" /></Button><Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteBrand(b.id)}><Trash2 className="w-4 h-4" /></Button></TableCell></TableRow>
-                      ))}
+                        <TableCell><Switch checked={b.active} onCheckedChange={v => updateBrand(b.id, { ...b, active: v })} /></TableCell>
+
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { setEditingBrand(b); setIsBrandModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: b.id, type: 'brand', name: b.name })}><Trash2 className="w-4 h-4" /></Button>
+
+
+                        </TableCell>
+                      </TableRow>
+                    ))}
+
                   </TableBody>
                 </Table>
               </div>
@@ -386,7 +529,8 @@ const Admin = () => {
                       </div>
                       <div className="grid gap-2"><Label>Imagen</Label>
                         <div className="relative group w-full h-32 rounded border-2 border-dashed flex items-center justify-center bg-secondary/10">
-                          {editingService?.image ? <img src={getMediaUrl(editingService.image)} className="h-full w-full object-cover" /> : <Scissors className="w-8 h-8 text-muted-foreground/30" />}
+                          {editingService?.image ? <img src={getMediaUrl(editingService.image)} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }} /> : <Scissors className="w-8 h-8 text-muted-foreground/30" />}
+
                           <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white">
                             <Plus /><input type="file" className="hidden" accept="image/*" onChange={async e => {
                               const file = e.target.files?.[0]; if (file) {
@@ -403,27 +547,44 @@ const Admin = () => {
                 </Dialog>
               </div>
             </div>
-            <div className="flex gap-2 pb-2 overflow-x-auto">
-              <Button size="sm" variant={serviceCategoryFilter === null ? "default" : "outline"} className="rounded-full shrink-0" onClick={() => setServiceCategoryFilter(null)}>Todos</Button>
-              {categories.filter(c => c.type === 'service' && c.active).map(cat => (
-                <Button key={cat.id} size="sm" variant={serviceCategoryFilter === cat.id ? "default" : "outline"} className="rounded-full shrink-0" onClick={() => setServiceCategoryFilter(cat.id as string)}>{cat.name}</Button>
-              ))}
+            <div className="flex flex-wrap gap-2 pb-2 justify-between items-center">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
+                <Button size="sm" variant={serviceCategoryFilter === null ? "default" : "outline"} className="rounded-full shrink-0" onClick={() => setServiceCategoryFilter(null)}>Todos</Button>
+                {categories.filter(c => c.type === 'service' && c.active).map(cat => (
+                  <Button key={cat.id} size="sm" variant={serviceCategoryFilter === cat.id ? "default" : "outline"} className="rounded-full shrink-0" onClick={() => setServiceCategoryFilter(cat.id as string)}>{cat.name}</Button>
+                ))}
+              </div>
+              <div className="flex gap-2 bg-secondary/10 p-1 rounded-full border">
+                <Button size="sm" variant={serviceStatusFilter === null ? "ghost" : "outline"} className={`rounded-full h-8 ${serviceStatusFilter === null ? 'bg-background shadow-sm' : ''}`} onClick={() => setServiceStatusFilter(null)}>Todos</Button>
+                <Button size="sm" variant={serviceStatusFilter === true ? "ghost" : "outline"} className={`rounded-full h-8 ${serviceStatusFilter === true ? 'bg-background shadow-sm' : ''}`} onClick={() => setServiceStatusFilter(true)}>Activos</Button>
+                <Button size="sm" variant={serviceStatusFilter === false ? "ghost" : "outline"} className={`rounded-full h-8 ${serviceStatusFilter === false ? 'bg-background shadow-sm' : ''}`} onClick={() => setServiceStatusFilter(false)}>Inactivos</Button>
+              </div>
             </div>
             <Card className="overflow-hidden">
               <div className="max-h-[400px] overflow-y-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card z-10">
-                    <TableRow><TableHead>Nombre</TableHead><TableHead>Categoría</TableHead><TableHead>Precio</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow>
+                    <TableRow><TableHead>Nombre</TableHead><TableHead>Categoría</TableHead><TableHead>Precio</TableHead><TableHead>Estado</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow>
                   </TableHeader>
                   <TableBody>
                     {services
                       .filter(s => !serviceCategoryFilter || s.category_id === serviceCategoryFilter)
+                      .filter(s => serviceStatusFilter === null || s.active === serviceStatusFilter)
                       .filter(s => !serviceSearch || s.name.toLowerCase().includes(serviceSearch.toLowerCase()) || s.description.toLowerCase().includes(serviceSearch.toLowerCase()))
                       .map(s => (
-                        <TableRow key={s.id}><TableCell className="font-medium">{s.name}</TableCell>
-                        <TableCell><span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{categories.find(c => c.id === s.category_id)?.name}</span></TableCell>
-                        <TableCell>${s.price.toLocaleString()}</TableCell><TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => { setEditingService(s); setIsServiceModalOpen(true); }}><Pencil className="w-4 h-4" /></Button></TableCell></TableRow>
+
+                        <TableRow key={s.id}>
+                          <TableCell>{s.name}</TableCell>
+                          <TableCell>{categories.find(c => c.id === s.category_id)?.name}</TableCell>
+                          <TableCell>${s.price}</TableCell>
+                          <TableCell><Switch checked={s.active} onCheckedChange={v => updateService(s.id, { ...s, active: v })} /></TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => { setEditingService(s); setIsServiceModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: s.id, type: 'service', name: s.name })}><Trash2 className="w-4 h-4" /></Button>
+                          </TableCell>
+                        </TableRow>
                       ))}
+
                   </TableBody>
                 </Table>
               </div>
@@ -452,10 +613,13 @@ const Admin = () => {
                       <div className="grid gap-2"><Label>Categoría</Label><select name="category_id" className="flex h-10 border bg-background px-3 text-sm rounded" defaultValue={editingProduct?.category_id} required><option value="">Seleccionar</option>{categories.filter(c => c.type === 'product').map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}</select></div>
                       <div className="grid gap-2"><Label>Precio</Label><Input name="price" type="number" defaultValue={editingProduct?.price} required /></div>
                       <div className="grid gap-2"><Label>Referencia</Label><Input name="reference" defaultValue={editingProduct?.reference} /></div>
+                      <div className="flex items-center gap-2"><Switch name="is_promotion" defaultChecked={editingProduct?.is_promotion} /> <Label>En Promoción (Aparece primero)</Label></div>
                       <div className="grid gap-2 col-span-2"><Label>Notas</Label><Input name="notes" defaultValue={editingProduct?.notes} /></div>
+
                       <div className="grid gap-2 col-span-2"><Label>Imagen</Label>
                         <div className="relative group w-full h-32 rounded border-2 border-dashed flex items-center justify-center bg-secondary/10">
-                          {editingProduct?.image ? <img src={getMediaUrl(editingProduct.image)} className="h-full w-full object-cover" /> : <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />}
+                          {editingProduct?.image ? <img src={getMediaUrl(editingProduct.image)} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }} /> : <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />}
+
                           <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white">
                             <Plus /><input type="file" className="hidden" accept="image/*" onChange={async e => {
                               const file = e.target.files?.[0]; if (file) {
@@ -473,41 +637,50 @@ const Admin = () => {
               </div>
             </div>
 
-            <div className="flex gap-2 pb-4 overflow-x-auto no-scrollbar">
-              <div className="flex flex-nowrap gap-2 min-w-max">
+            <div className="flex flex-wrap gap-2 pb-4 justify-between items-center">
+              <div className="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar py-1">
                 <Button variant={catalogCategoryFilter === null ? "default" : "outline"} size="sm" onClick={() => setCatalogCategoryFilter(null)} className="rounded-full shrink-0">Todos</Button>
                 {categories.filter(c => c.type === 'product' && c.active).map(cat => (
                   <Button key={cat.id} variant={catalogCategoryFilter === cat.id ? "default" : "outline"} size="sm" onClick={() => setCatalogCategoryFilter(cat.id as string)} className="rounded-full shrink-0">{cat.name}</Button>
                 ))}
               </div>
+              <div className="flex gap-2 bg-secondary/10 p-1 rounded-full border shrink-0">
+                <Button size="sm" variant={catalogStatusFilter === null ? "ghost" : "outline"} className={`rounded-full h-8 ${catalogStatusFilter === null ? 'bg-background shadow-sm' : ''}`} onClick={() => setCatalogStatusFilter(null)}>Todos</Button>
+                <Button size="sm" variant={catalogStatusFilter === true ? "ghost" : "outline"} className={`rounded-full h-8 ${catalogStatusFilter === true ? 'bg-background shadow-sm' : ''}`} onClick={() => setCatalogStatusFilter(true)}>Activos</Button>
+                <Button size="sm" variant={catalogStatusFilter === false ? "ghost" : "outline"} className={`rounded-full h-8 ${catalogStatusFilter === false ? 'bg-background shadow-sm' : ''}`} onClick={() => setCatalogStatusFilter(false)}>Inactivos</Button>
+              </div>
             </div>
-
             <Card className="overflow-hidden border-primary/10">
               <div className="max-h-[500px] overflow-y-auto relative">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="sticky top-0 bg-white z-20">Nombre</TableHead>
-                      <TableHead className="sticky top-0 bg-white z-20">Categoría</TableHead>
-                      <TableHead className="sticky top-0 bg-white z-20">Marca</TableHead>
-                      <TableHead className="sticky top-0 bg-white z-20">Precio</TableHead>
-                      <TableHead className="sticky top-0 bg-white z-20 text-right">Acciones</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20">Nombre</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20">Categoría</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20">Marca</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20">Precio</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20">Estado</TableHead>
+                      <TableHead className="sticky top-0 bg-white dark:bg-slate-950 z-20 text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {products
                       .filter(p => !catalogCategoryFilter || p.category_id === catalogCategoryFilter)
+                      .filter(p => catalogStatusFilter === null || p.active === catalogStatusFilter)
                       .filter(p => !catalogSearch || p.name.toLowerCase().includes(catalogSearch.toLowerCase()) || (p.brand_name && p.brand_name.toLowerCase().includes(catalogSearch.toLowerCase())) || (p.reference && p.reference.toLowerCase().includes(catalogSearch.toLowerCase())))
                       .map(p => (
-                        <TableRow key={p.id} className="hover:bg-secondary/5">
-                          <TableCell className="font-medium">{p.name}</TableCell>
+
+                        <TableRow key={p.id} className={`hover:bg-secondary/5 ${p.is_promotion ? 'bg-amber-50/50' : ''}`}>
+                          <TableCell className="font-medium flex items-center gap-2">{p.name} {p.is_promotion && <Sparkles className="w-3 h-3 text-amber-500" />}</TableCell>
                           <TableCell><span className="text-xs bg-primary/5 text-primary px-2 py-0.5 rounded-full border border-primary/10">{p.category_name || '-'}</span></TableCell>
                           <TableCell>{p.brand_name || '-'}</TableCell>
                           <TableCell className="font-bold">${p.price?.toLocaleString() || '0'}</TableCell>
+                          <TableCell><Switch checked={p.active} onCheckedChange={v => updateProduct(p.id, { ...p, active: v })} /></TableCell>
+
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
                               <Button variant="ghost" size="icon" onClick={() => { setEditingProduct(p); setIsProductModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
-                              <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deleteProduct(p.id)}><Trash2 className="w-4 h-4" /></Button>
+                              <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: p.id, type: 'product', name: p.name })}><Trash2 className="w-4 h-4" /></Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -564,7 +737,20 @@ const Admin = () => {
                         )}
                       </div>
 
+                      {/* Auto response toggle */}
+                      <div className="flex items-center justify-between p-4 bg-green-50/50 rounded-xl border border-green-200">
+                        <div className="space-y-0.5">
+                          <Label className="text-green-800 font-bold">Respuesta Automática</Label>
+                          <p className="text-[10px] text-green-600/80">Activa o desactiva el bot sin desconectar</p>
+                        </div>
+                        <Switch 
+                          checked={localProfile.auto_response_active} 
+                          onCheckedChange={v => setLocalProfile({...localProfile, auto_response_active: v})} 
+                        />
+                      </div>
+
                       {/* Templates */}
+
                       <div className="space-y-4">
                         <div className="grid gap-2">
                           <Label>Mensaje para Asesoría (General)</Label>
@@ -620,7 +806,11 @@ const Admin = () => {
                             )}
                           </TableCell>
                           <TableCell><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${r.status === 'pendiente' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{r.status}</span></TableCell>
-                          <TableCell className="text-right">{r.status === 'pendiente' && <Button size="sm" variant="outline" className="h-7 text-[10px] px-2" onClick={() => updateRequestStatus(r.id, 'completado')}>Marcar OK</Button>}</TableCell>
+                          <TableCell className="text-right flex justify-end gap-1">
+                            {r.status === 'pendiente' && <Button size="sm" variant="outline" className="h-7 text-[10px] px-2" onClick={() => updateRequestStatus(r.id, 'completado')}>Marcar OK</Button>}
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setDeleteInfo({ id: r.id, type: 'request', name: `Solicitud de ${r.phone}` })}><Trash2 className="w-3 h-3" /></Button>
+                          </TableCell>
+
                         </TableRow>
                       ))}
                   </TableBody>
@@ -629,7 +819,39 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="clientes" className="space-y-4">
+             <div className="flex justify-between items-center">
+               <h2 className="text-xl font-bold">Clientes</h2>
+               <Button onClick={() => {
+                 const name = prompt("Nombre:");
+                 const phone = prompt("Teléfono:");
+                 const email = prompt("Email:");
+                 const city = prompt("Ciudad:");
+                 if (name) addClient({ name, phone: phone || '', email: email || '', city: city || '' });
+               }}><Plus className="w-4 h-4 mr-2" /> Agregar Manual</Button>
+             </div>
+             <Card>
+               <Table>
+                 <TableHeader><TableRow><TableHead>Nombre</TableHead><TableHead>WhatsApp</TableHead><TableHead>Ciudad</TableHead><TableHead>Fecha</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                 <TableBody>
+                   {clients.map(c => (
+                     <TableRow key={c.id}>
+                       <TableCell className="font-bold">{c.name}</TableCell>
+                       <TableCell>{c.phone}</TableCell>
+                       <TableCell>{c.city}</TableCell>
+                       <TableCell className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</TableCell>
+                       <TableCell className="text-right">
+                         <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: c.id, type: 'client', name: c.name })}><Trash2 className="w-4 h-4" /></Button>
+                       </TableCell>
+                     </TableRow>
+                   ))}
+                 </TableBody>
+               </Table>
+             </Card>
+          </TabsContent>
+
           <TabsContent value="perfil" className="space-y-4">
+
             <Card><CardHeader className="flex justify-between flex-row"><div><CardTitle>Perfil</CardTitle></div><Button onClick={handleSaveProfile} className="gradient-primary">Guardar</Button></CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -638,8 +860,9 @@ const Admin = () => {
                       <Label className="mb-2 block">Foto de Perfil</Label>
                       <div className="relative group aspect-square w-full max-w-[240px] rounded-2xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden shadow-inner">
                         {localProfile.imageUrl ? (
-                          <img src={getMediaUrl(localProfile.imageUrl)} className="w-full h-full object-cover" alt="Profile" />
+                          <img src={getMediaUrl(localProfile.imageUrl)} className="w-full h-full object-cover" alt="Profile" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }} />
                         ) : (
+
                           <User className="w-12 h-12 text-muted-foreground/30" />
                         )}
                         <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer text-white transition-opacity duration-300">
@@ -659,8 +882,9 @@ const Admin = () => {
                       <Label className="mb-2 block">Icono del Sitio (Favicon)</Label>
                       <div className="relative group aspect-square w-16 h-16 rounded-xl border-2 border-dashed border-primary/20 flex items-center justify-center bg-secondary/10 overflow-hidden">
                         {localProfile.site_icon_url ? (
-                          <img src={getMediaUrl(localProfile.site_icon_url)} className="w-full h-full object-contain p-2" alt="Icon" />
+                          <img src={getMediaUrl(localProfile.site_icon_url)} className="w-full h-full object-contain p-2" alt="Icon" onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }} />
                         ) : (
+
                           <Sparkles className="w-6 h-6 text-muted-foreground/30" />
                         )}
                         <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer text-white transition-opacity duration-300">
@@ -706,7 +930,29 @@ const Admin = () => {
         </Tabs>
       </div>
     </div>
+    </div>
+    <AlertDialog open={!!deleteInfo} onOpenChange={(v) => !v && setDeleteInfo(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. Se eliminará permanentemente <strong>{deleteInfo?.name}</strong> y todos sus datos relacionados.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Confirmar Eliminación
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
+
+
+
+
 
 export default Admin;

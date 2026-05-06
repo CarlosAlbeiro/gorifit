@@ -1,8 +1,8 @@
 import { Loader2, WifiOff, Sparkles, Heart } from "lucide-react";
 
-export const LoadingPage = () => {
+export const LoadingPage = ({ message = "Preparando tu belleza...", submessage = "Estamos cargando los mejores productos para ti" }: { message?: string, submessage?: string }) => {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="relative">
         <div className="absolute -inset-4 gradient-primary rounded-full opacity-20 blur-xl animate-pulse" />
         <div className="relative flex items-center justify-center">
@@ -12,8 +12,8 @@ export const LoadingPage = () => {
         </div>
       </div>
       <div className="mt-8 text-center">
-        <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Preparando tu belleza...</h2>
-        <p className="text-muted-foreground animate-pulse">Estamos cargando los mejores productos para ti</p>
+        <h2 className="font-heading text-2xl font-bold text-foreground mb-2">{message}</h2>
+        <p className="text-muted-foreground animate-pulse">{submessage}</p>
       </div>
       
       {/* Decorative floating elements */}
@@ -22,6 +22,7 @@ export const LoadingPage = () => {
     </div>
   );
 };
+
 
 export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
   return (
@@ -32,8 +33,9 @@ export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
           <img 
             src="/error_illustration.png" 
             alt="Error de conexión" 
-            className="relative z-10 w-full h-full object-contain animate-float"
+            className="relative z-10 w-full h-full object-contain animate-float-status"
           />
+
         </div>
         
         <h2 className="font-heading text-3xl font-bold text-foreground mb-4">¡Oh no! Algo salió mal</h2>
@@ -57,14 +59,18 @@ export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
       </div>
       
       <style>{`
-        @keyframes float {
+        @keyframes float-status {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
+        .animate-float-status {
+          animation: float-status 3s ease-in-out infinite;
         }
       `}</style>
+
     </div>
   );
 };
+
+export default LoadingPage;
+

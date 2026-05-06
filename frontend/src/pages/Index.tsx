@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import Navbar from "@/components/Navbar";
-import CategoryCarousel from "@/components/CategoryCarousel";
 import ProfileSection from "@/components/ProfileSection";
 import CatalogSection from "@/components/CatalogSection";
 import ContactSection from "@/components/ContactSection";
@@ -27,10 +26,11 @@ const Index = () => {
     <div className="min-h-screen bg-background selection:bg-primary/30 selection:text-primary-foreground">
       <AestheticEffects />
       <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
-      {sections.hero && <CategoryCarousel />}
-      {sections.services && <ServicesSection />}
-      {sections.profile && <ProfileSection />}
       {sections.catalog && <CatalogSection />}
+      {sections.services && <ServicesSection />}
+
+      {sections.profile && <ProfileSection />}
+      
       {sections.contact && <ContactSection />}
       <Footer />
       <FloatingButtons />

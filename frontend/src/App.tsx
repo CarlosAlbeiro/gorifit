@@ -7,6 +7,7 @@ import { SiteProvider, useSite } from "./context/SiteContext.tsx";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CategoryPage from "./pages/CategoryPage.tsx";
+import ServicesPage from "./pages/ServicesPage.tsx";
 import Admin from "./pages/Admin.tsx";
 import Login from "./pages/Login.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
@@ -33,6 +34,8 @@ const App = () => (
             <Route path="/politica-de-privacidad" element={<PrivacyPolicy />} />
             <Route path="/terminos-y-condiciones" element={<TermsAndConditions />} />
             <Route path="/categoria/:slug" element={<CategoryPage />} />
+            <Route path="/servicios" element={<ServicesPage />} />
+
             <Route 
               path="/admin" 
               element={

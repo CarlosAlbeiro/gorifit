@@ -3,12 +3,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useSite, API_URL } from "@/context/SiteContext";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoadingPage } from "./StatusPages";
 
 const ContactSection = () => {
   const { contact } = useSite();
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(() => localStorage.getItem("user_phone") || "");
+  const [countryCode, setCountryCode] = useState("+57");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [accepted, setAccepted] = useState(false);
+  const [accepted, setAccepted] = useState(() => localStorage.getItem("user_consent") === "true");
+
 
   if (!contact.active) return null;
 
@@ -24,8 +27,12 @@ const ContactSection = () => {
     if (!phone) return toast.error("Ingresa tu número");
     if (!accepted) return toast.error("Debes aceptar el tratamiento de datos");
 
+    const fullPhone = `${countryCode}${phone.replace(/\s+/g, '')}`;
     setIsSubmitting(true);
     try {
+      localStorage.setItem("user_phone", phone);
+      localStorage.setItem("user_consent", "true");
+
       let location = "Desconocida";
       try {
         const resIp = await fetch('https://ipapi.co/json/');
@@ -37,11 +44,12 @@ const ContactSection = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          phone, 
+          phone: fullPhone, 
           location, 
           consentGiven: true, 
           policyVersion: 'v1.0' 
         })
+
       });
 
       if (res.ok) {
@@ -61,7 +69,9 @@ const ContactSection = () => {
 
   return (
     <section id="contacto" className="py-24 bg-background">
+      {isSubmitting && <LoadingPage message="Enviando solicitud..." submessage="Casi terminamos" />}
       <div className="container mx-auto px-6">
+
         <div className="text-center mb-16">
           <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Contacto</p>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
@@ -116,12 +126,26 @@ const ContactSection = () => {
                 Diligencia tu número de teléfono para solicitar información o asesoría:
               </p>
               <div className="flex gap-2">
+                <select 
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-24 rounded-xl h-12 bg-card border border-border focus:ring-2 focus:ring-primary/20 outline-none px-2 text-sm font-bold"
+                >
+                  <option value="+57">🇨🇴 +57</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+52">🇲🇽 +52</option>
+                  <option value="+54">🇦🇷 +54</option>
+                  <option value="+56">🇨🇱 +56</option>
+                  <option value="+51">🇵🇪 +51</option>
+                  <option value="+58">🇻🇪 +58</option>
+                </select>
                 <input
                   type="tel"
-                  placeholder="Tu número de teléfono"
+                  placeholder="Número de teléfono"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  className="flex-1 px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold"
                   required
                 />
                 <button
@@ -132,6 +156,7 @@ const ContactSection = () => {
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                 </button>
               </div>
+
             </div>
 
             <div className="flex items-start gap-3 bg-secondary/10 p-4 rounded-xl border border-primary/10">

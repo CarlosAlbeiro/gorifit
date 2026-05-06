@@ -53,10 +53,14 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.status(401).json({ error: 'Access denied' });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
+    if (err) {
+      console.error("JWT Error:", err.message);
+      return res.status(403).json({ error: 'Invalid or expired token', detail: err.message });
+    }
     req.user = user;
     next();
   });
+
 };
 
 // Routes
@@ -171,6 +175,8 @@ app.use('/api/categories', createCrudRoutes('categories'));
 app.use('/api/services', createCrudRoutes('services'));
 app.use('/api/brands', createCrudRoutes('brands'));
 app.use('/api/requests', createCrudRoutes('service_requests'));
+app.use('/api/clients', createCrudRoutes('clients'));
+
 
 // Custom POST route for requests WITHOUT auth (public)
 const requestRouter = express.Router();
@@ -225,8 +231,9 @@ app.get('/api/products', async (req, res) => {
       FROM products p
       LEFT JOIN brands b ON p.brand_id = b.id
       LEFT JOIN categories c ON p.category_id = c.id
-      ORDER BY p.created_at DESC
+      ORDER BY p.is_promotion DESC, p.created_at DESC
     `);
+
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { toast } from "sonner";
+
 
 export const API_URL = (() => {
   // 1. Prioritize build-time environment variable
@@ -62,7 +64,18 @@ interface Product {
   active: boolean;
   reference?: string;
   notes?: string;
+  is_promotion: boolean;
 }
+
+interface Client {
+  id: number | string;
+  name: string;
+  phone: string;
+  email: string;
+  city: string;
+  created_at: string;
+}
+
 
 interface ProfileData {
   name: string;
@@ -77,8 +90,10 @@ interface ProfileData {
   tiktok_video_url?: string;
   wa_msg_advice?: string;
   wa_msg_product?: string;
+  auto_response_active: boolean;
   active: boolean;
 }
+
 
 interface ContactData {
   phone: string;
@@ -126,8 +141,13 @@ interface SiteContextType {
   addBrand: (brand: Omit<Brand, "id">) => void;
   updateBrand: (id: number | string, data: Partial<Brand>) => void;
   deleteBrand: (id: number | string) => void;
+  clients: Client[];
+  addClient: (client: Omit<Client, "id" | "created_at">) => void;
+  updateClient: (id: number | string, data: Partial<Client>) => void;
+  deleteClient: (id: number | string) => void;
   getMediaUrl: (path: string | null | undefined) => string;
 }
+
 
 const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
@@ -137,8 +157,9 @@ const DEFAULT_SECTIONS: SectionVisibility = {
 
 const DEFAULT_PROFILE: ProfileData = {
   name: "Luisa Restrepo", fullname: "Luisa Restrepo - Maquilladora Profesional", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg", site_icon_url: "/favicon.ico",
-  stats_years: "8+", stats_clients: "500+", stats_products: "120+", stats_awards: "15", active: true,
+  stats_years: "8+", stats_clients: "500+", stats_products: "120+", stats_awards: "15", auto_response_active: true, active: true,
 };
+
 
 const DEFAULT_CONTACT: ContactData = {
   phone: "+57 300 000 0000", email: "hola@luisarestrepo.com", address: "Medellín, Colombia",
@@ -161,8 +182,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>(() => getLocal("site_products", []));
   const [categories, setCategories] = useState<Category[]>(() => getLocal("site_categories", []));
   const [brands, setBrands] = useState<Brand[]>(() => getLocal("site_brands", []));
+  const [clients, setClients] = useState<Client[]>(() => getLocal("site_clients", []));
   
   const [isLoading, setIsLoading] = useState(true);
+
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState<any>(() => getLocal("auth_user", null));
   const [token, setToken] = useState<string | null>(localStorage.getItem("auth_token"));
@@ -218,9 +241,22 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("auth_user");
   };
 
-  const fetchWithAuth = (url: string, options: any = {}) => {
-    return fetch(url, { ...options, headers: { ...options.headers, 'Authorization': `Bearer ${token}` } });
+  const fetchWithAuth = async (url: string, options: any = {}) => {
+    const res = await fetch(url, { 
+      ...options, 
+      headers: { 
+        ...options.headers, 
+        'Authorization': `Bearer ${localStorage.getItem("auth_token")}` 
+      } 
+    });
+    
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      window.location.href = '/login';
+    }
+    return res;
   };
+
 
   const fetchAllData = async () => {
     setIsLoading(true);
@@ -249,10 +285,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             stats_years: p.stats_years || "8+", 
             stats_clients: p.stats_clients || "500+", 
             stats_products: p.stats_products || "120+", 
-            stats_awards: p.stats_awards || "15", 
-            tiktok_video_url: p.tiktok_video_url || "",
-            wa_msg_advice: p.wa_msg_advice || 'Hola! He visto que solicitaste una asesoría personalizada. ¿En qué puedo ayudarte?',
-            wa_msg_product: p.wa_msg_product || 'Hola! Me interesa información sobre el producto: {product}.',
+            stats_awards: p.stats_awards || "15",
+            auto_response_active: p.auto_response_active ?? true,
+            tiktok_video_url: p.tiktok_video_url || '',
+            wa_msg_advice: p.wa_msg_advice || "Hola! He visto tu sitio y me gustaría recibir asesoría personalizada. ✨",
+            wa_msg_product: p.wa_msg_product || "Hola! Me interesa este producto: {product}. Me darías más información? 🛍️",
             active: p.is_active 
           };
           setProfile(np);
@@ -260,9 +297,17 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      const cRes = await fetch(`${API_URL}/contact`);
+      const cRes = await fetch(`${API_URL}/clients`);
       if (cRes.ok) {
-        const c = (await cRes.json())[0];
+        const cData = await cRes.json();
+        setClients(cData);
+        saveLocal("site_clients", cData);
+      }
+
+
+      const contactRes = await fetch(`${API_URL}/contact`);
+      if (contactRes.ok) {
+        const c = (await contactRes.json())[0];
         if (c) {
           const nc = { phone: c.phone || DEFAULT_CONTACT.phone, email: c.email || DEFAULT_CONTACT.email, address: c.address || DEFAULT_CONTACT.address, whatsapp: c.whatsapp || DEFAULT_CONTACT.whatsapp, instagram_url: c.instagram_url || "", instagram_active: c.instagram_active ?? true, tiktok_url: c.tiktok_url || "", tiktok_active: c.tiktok_active ?? true, facebook_url: c.facebook_url || "", facebook_active: c.facebook_active ?? true, youtube_url: c.youtube_url || "", youtube_active: c.youtube_active ?? true, active: c.is_active ?? true };
           setContact(nc);
@@ -294,10 +339,10 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         saveLocal("site_services", srvs);
       }
 
-      const productsRes = await fetch(`${API_URL}/products`);
-      if (productsRes.ok) {
-        const data = await productsRes.json();
-        const prds = data.map((p: any) => ({ id: p.id, name: p.name, description: p.description, price: parseFloat(p.price), category_id: p.category_id, category_name: p.category_name, brand_id: p.brand_id, brand_name: p.brand_name, image: p.image_url, active: p.is_active, reference: p.reference, notes: p.notes }));
+      const prRes = await fetch(`${API_URL}/products`);
+      if (prRes.ok) {
+        const data = await prRes.json();
+        const prds = data.map((p: any) => ({ id: p.id, name: p.name, description: p.description, price: parseFloat(p.price), category_id: p.category_id, category_name: p.category_name, brand_id: p.brand_id, brand_name: p.brand_name, image: p.image_url, active: p.is_active, reference: p.reference, notes: p.notes, is_promotion: p.is_promotion }));
         setProducts(prds);
         saveLocal("site_products", prds);
       }
@@ -338,10 +383,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           stats_clients: data.stats_clients,
           stats_products: data.stats_products,
           stats_awards: data.stats_awards,
+          auto_response_active: data.auto_response_active,
           tiktok_video_url: data.tiktok_video_url,
           wa_msg_advice: data.wa_msg_advice,
           wa_msg_product: data.wa_msg_product
         };
+
         // Remove undefined keys to avoid overwriting with null
         Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
         
@@ -350,9 +397,11 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
           headers: { 'Content-Type': 'application/json' }, 
           body: JSON.stringify(payload) 
         });
+        fetchAllData();
       }
     } catch (err) { }
   };
+
 
   const updateContact = async (data: Partial<ContactData>) => {
     setContact(prev => { const n = { ...prev, ...data }; saveLocal("site_contact", n); return n; });
@@ -363,92 +412,170 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const payload: any = { phone: data.phone, email: data.email, address: data.address, is_active: data.active, instagram_url: data.instagram_url, instagram_active: data.instagram_active, tiktok_url: data.tiktok_url, tiktok_active: data.tiktok_active, facebook_url: data.facebook_url, facebook_active: data.facebook_active, youtube_url: data.youtube_url, youtube_active: data.youtube_active };
         Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
         await fetchWithAuth(`${API_URL}/contact/${c.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        fetchAllData();
       }
     } catch (err) { }
   };
 
+
   const addCategory = async (cat: Omit<Category, "id">) => {
+    const tid = toast.loading("Creando categoría...");
     try {
       await fetchWithAuth(`${API_URL}/categories`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: cat.name, type: cat.type, icon: cat.icon, is_active: cat.active }) });
+      toast.success("Categoría creada", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al crear", { id: tid }); }
   };
 
   const updateCategory = async (id: number | string, data: Partial<Category>) => {
+    const tid = toast.loading("Actualizando categoría...");
     try {
       const p: any = { name: data.name, type: data.type, icon: data.icon, is_active: data.active };
       Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
       await fetchWithAuth(`${API_URL}/categories/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      toast.success("Categoría actualizada", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al actualizar", { id: tid }); }
   };
+
 
   const deleteCategory = async (id: number | string) => {
-    try { await fetchWithAuth(`${API_URL}/categories/${id}`, { method: 'DELETE' }); fetchAllData(); } catch (err) { }
+    const tid = toast.loading("Eliminando categoría...");
+    try { 
+      await fetchWithAuth(`${API_URL}/categories/${id}`, { method: 'DELETE' }); 
+      toast.success("Categoría eliminada", { id: tid });
+      fetchAllData(); 
+    } catch (err) { toast.error("Error al eliminar", { id: tid }); }
   };
 
+
   const addBrand = async (brand: Omit<Brand, "id">) => {
+    const tid = toast.loading("Creando marca...");
     try {
       await fetchWithAuth(`${API_URL}/brands`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: brand.name, description: brand.description, logo_url: brand.logo_url, is_active: brand.active }) });
+      toast.success("Marca creada", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al crear", { id: tid }); }
   };
 
   const updateBrand = async (id: number | string, data: Partial<Brand>) => {
+    const tid = toast.loading("Actualizando marca...");
     try {
       const p: any = { name: data.name, description: data.description, logo_url: data.logo_url, is_active: data.active };
       Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
       await fetchWithAuth(`${API_URL}/brands/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      toast.success("Marca actualizada", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al actualizar", { id: tid }); }
   };
+
 
   const deleteBrand = async (id: number | string) => {
-    try { await fetchWithAuth(`${API_URL}/brands/${id}`, { method: 'DELETE' }); fetchAllData(); } catch (err) { }
+    const tid = toast.loading("Eliminando marca...");
+    try { 
+      await fetchWithAuth(`${API_URL}/brands/${id}`, { method: 'DELETE' }); 
+      toast.success("Marca eliminada", { id: tid });
+      fetchAllData(); 
+    } catch (err) { toast.error("Error al eliminar", { id: tid }); }
   };
 
+
   const addService = async (s: Omit<Service, "id">) => {
+    const tid = toast.loading("Creando servicio...");
     try {
       await fetchWithAuth(`${API_URL}/services`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: s.name, description: s.description, price: s.price, category_id: s.category_id, is_active: s.active, image_url: s.image }) });
+      toast.success("Servicio creado", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al crear", { id: tid }); }
   };
 
   const updateService = async (id: number | string, data: Partial<Service>) => {
+    const tid = toast.loading("Actualizando servicio...");
     try {
       const p: any = { name: data.name, description: data.description, price: data.price, category_id: data.category_id, is_active: data.active, image_url: data.image };
       Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
       await fetchWithAuth(`${API_URL}/services/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      toast.success("Servicio actualizado", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al actualizar", { id: tid }); }
   };
+
 
   const deleteService = async (id: number | string) => {
-    try { await fetchWithAuth(`${API_URL}/services/${id}`, { method: 'DELETE' }); fetchAllData(); } catch (err) { }
+    const tid = toast.loading("Eliminando servicio...");
+    try { 
+      await fetchWithAuth(`${API_URL}/services/${id}`, { method: 'DELETE' }); 
+      toast.success("Servicio eliminado", { id: tid });
+      fetchAllData(); 
+    } catch (err) { toast.error("Error al eliminar", { id: tid }); }
   };
 
+
   const addProduct = async (p: Omit<Product, "id">) => {
+    const tid = toast.loading("Creando producto...");
     try {
       await fetchWithAuth(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: p.name, description: p.description, price: p.price, category_id: p.category_id, brand_id: p.brand_id, reference: p.reference, notes: p.notes, is_active: p.active, image_url: p.image }) });
+      toast.success("Producto creado", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al crear", { id: tid }); }
   };
 
   const updateProduct = async (id: number | string, data: Partial<Product>) => {
+    const tid = toast.loading("Actualizando producto...");
     try {
-      const p: any = { name: data.name, description: data.description, price: data.price, category_id: data.category_id, brand_id: data.brand_id, reference: data.reference, notes: data.notes, is_active: data.active, image_url: data.image };
+      const p: any = { name: data.name, description: data.description, price: data.price, category_id: data.category_id, brand_id: data.brand_id, reference: data.reference, notes: data.notes, is_active: data.active, image_url: data.image, is_promotion: data.is_promotion };
       Object.keys(p).forEach(k => p[k] === undefined && delete p[k]);
       await fetchWithAuth(`${API_URL}/products/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+      toast.success("Producto actualizado", { id: tid });
       fetchAllData();
-    } catch (err) { }
+    } catch (err) { toast.error("Error al actualizar", { id: tid }); }
   };
+
+
 
   const deleteProduct = async (id: number | string) => {
-    try { await fetchWithAuth(`${API_URL}/products/${id}`, { method: 'DELETE' }); fetchAllData(); } catch (err) { }
+    const tid = toast.loading("Eliminando producto...");
+    try { 
+      await fetchWithAuth(`${API_URL}/products/${id}`, { method: 'DELETE' }); 
+      toast.success("Producto eliminado", { id: tid });
+      fetchAllData(); 
+    } catch (err) { toast.error("Error al eliminar", { id: tid }); }
   };
 
+
+  const addClient = async (client: Omit<Client, "id" | "created_at">) => {
+    const tid = toast.loading("Agregando cliente...");
+    try {
+      await fetchWithAuth(`${API_URL}/clients`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(client) });
+      toast.success("Cliente agregado", { id: tid });
+      fetchAllData();
+    } catch (err) { toast.error("Error al agregar", { id: tid }); }
+  };
+
+  const updateClient = async (id: number | string, client: Partial<Client>) => {
+    const tid = toast.loading("Actualizando cliente...");
+    try {
+      await fetchWithAuth(`${API_URL}/clients/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(client) });
+      toast.success("Cliente actualizado", { id: tid });
+      fetchAllData();
+    } catch (err) { toast.error("Error al actualizar", { id: tid }); }
+  };
+
+  const deleteClient = async (id: number | string) => {
+    const tid = toast.loading("Eliminando cliente...");
+    try {
+      await fetchWithAuth(`${API_URL}/clients/${id}`, { method: 'DELETE' });
+      toast.success("Cliente eliminado", { id: tid });
+      fetchAllData();
+    } catch (err) { toast.error("Error al eliminar", { id: tid }); }
+  };
+
+
+
   const getMediaUrl = (path: string | null | undefined) => {
-    if (!path) return "/placeholder.png";
+
+    if (!path || path === "/placeholder.svg") return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop";
+
     if (path.startsWith('http') || path.startsWith('data:')) {
       // Force https if current page is https
       if (window.location.protocol === 'https:' && path.startsWith('http:')) {
@@ -479,10 +606,12 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <SiteContext.Provider value={{ 
       sections, profile, contact, services, products, categories, brands, isLoading, isConnected, user, token, login, logout,
       setSectionVisibility, updateProfile, updateContact, addService, updateService, deleteService, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, addBrand, updateBrand, deleteBrand,
+      clients, addClient, updateClient, deleteClient,
       theme,
       toggleTheme,
       getMediaUrl
     }}>
+
       {children}
     </SiteContext.Provider>
   );

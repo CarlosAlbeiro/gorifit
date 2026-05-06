@@ -10,11 +10,24 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useSite, API_URL } from "@/context/SiteContext";
 
+const COUNTRY_CODES = [
+  { code: '+57', name: 'COL', flag: '🇨🇴' },
+  { code: '+1', name: 'USA', flag: '🇺🇸' },
+  { code: '+52', name: 'MEX', flag: '🇲🇽' },
+  { code: '+34', name: 'ESP', flag: '🇪🇸' },
+  { code: '+54', name: 'ARG', flag: '🇦🇷' },
+  { code: '+56', name: 'CHL', flag: '🇨🇱' },
+  { code: '+51', name: 'PER', flag: '🇵🇪' },
+  { code: '+593', name: 'ECU', flag: '🇪🇨' },
+  { code: '+507', name: 'PAN', flag: '🇵🇦' },
+];
+
 const FloatingButtons = () => {
   const { contact } = useSite();
   const [isOpen, setIsOpen] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [accepted, setAccepted] = useState(false);
+  const [phone, setPhone] = useState(() => localStorage.getItem("user_phone") || "");
+  const [countryCode, setCountryCode] = useState(() => localStorage.getItem("user_country_code") || "+57");
+  const [accepted, setAccepted] = useState(() => localStorage.getItem("user_consent") === "true");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRequestAsesoria = async (e: React.FormEvent) => {
@@ -24,7 +37,6 @@ const FloatingButtons = () => {
 
     setIsSubmitting(true);
     try {
-      // Intentar obtener ubicación básica
       let location = "Desconocida";
       try {
         const resIp = await fetch('https://ipapi.co/json/');
@@ -32,12 +44,12 @@ const FloatingButtons = () => {
         location = `${dataIp.city}, ${dataIp.country_name}`;
       } catch (e) { console.error("No se pudo obtener ubicación"); }
 
-      // Enviar solicitud al backend
+      const fullPhone = `${countryCode}${phone}`;
       const res = await fetch(`${API_URL}/public-requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: phone,
+          phone: fullPhone,
           location: location,
           consentGiven: true,
           policyVersion: 'v1.0'
@@ -46,9 +58,11 @@ const FloatingButtons = () => {
 
       if (res.ok) {
         toast.success("Solicitud enviada con éxito. Te contactaremos pronto.");
+        // Persistir datos
+        localStorage.setItem("user_phone", phone);
+        localStorage.setItem("user_country_code", countryCode);
+        localStorage.setItem("user_consent", "true");
         setIsOpen(false);
-        setPhone("");
-        setAccepted(false);
       } else {
         throw new Error("Error al guardar solicitud");
       }
@@ -95,13 +109,27 @@ const FloatingButtons = () => {
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="phone">Tu número de WhatsApp</Label>
-                <Input 
-                  id="phone" 
-                  placeholder="Ej: +57 300 123 4567" 
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
+                <div className="flex gap-2">
+                  <select 
+                    className="flex h-10 w-[90px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.code}
+                      </option>
+                    ))}
+                  </select>
+                  <Input 
+                    id="phone" 
+                    placeholder="300 123 4567" 
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="flex-1"
+                  />
+                </div>
               </div>
 
               <div className="flex items-start gap-3 bg-secondary/5 p-3 rounded-xl border border-border/50">
@@ -109,7 +137,10 @@ const FloatingButtons = () => {
                   type="checkbox" 
                   id="legal-consent-whatsapp"
                   checked={accepted}
-                  onChange={(e) => setAccepted(e.target.checked)}
+                  onChange={(e) => {
+                    setAccepted(e.target.checked);
+                    localStorage.setItem("user_consent", e.target.checked.toString());
+                  }}
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
                 />
                 <label htmlFor="legal-consent-whatsapp" className="text-[10px] text-muted-foreground leading-snug cursor-pointer select-none">
@@ -134,5 +165,6 @@ const FloatingButtons = () => {
     </div>
   );
 };
+
 
 export default FloatingButtons;

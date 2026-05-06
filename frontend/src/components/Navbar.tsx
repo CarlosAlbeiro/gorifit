@@ -2,27 +2,44 @@ import { useState } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { Button } from "@/components/ui/button";
+import { useNavigate, useLocation } from "react-router-dom";
+
 
 interface NavbarProps {
-  activeSection: string;
-  onNavigate: (section: string) => void;
+  activeSection?: string;
+  onNavigate?: (section: string) => void;
 }
 
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   const { profile, theme, toggleTheme } = useSite();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const links = [
     { id: "inicio", label: "Inicio" },
     { id: "perfil", label: "Perfil" },
+    { id: "servicios", label: "Servicios", type: 'route', path: '/servicios' },
     { id: "catalogo", label: "Catálogo" },
     { id: "contacto", label: "Contacto" },
   ];
 
-  const handleClick = (id: string) => {
-    onNavigate(id);
+  const handleClick = (link: any) => {
+    if (link.type === 'route') {
+      navigate(link.path);
+    } else {
+      if (location.pathname !== "/") {
+        navigate("/");
+        setTimeout(() => {
+          document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" });
+        }, 300);
+      } else if (onNavigate) {
+        onNavigate(link.id);
+      }
+    }
     setMobileOpen(false);
   };
+
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -37,7 +54,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
           {links.map((link) => (
             <button
               key={link.id}
-              onClick={() => handleClick(link.id)}
+              onClick={() => handleClick(link)}
               className={`text-[10px] font-bold uppercase tracking-widest transition-all hover:text-primary ${
                 activeSection === link.id ? "text-primary border-b-2 border-primary pb-0.5" : "text-muted-foreground"
               }`}
@@ -45,6 +62,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
               {link.label}
             </button>
           ))}
+
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2 rounded-full h-8 w-8">
             {theme === 'light' ? <Moon size={16} className="text-muted-foreground" /> : <Sun size={16} className="text-amber-400" />}
           </Button>
@@ -62,12 +80,13 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
           {links.map((link) => (
             <button
               key={link.id}
-              onClick={() => handleClick(link.id)}
+              onClick={() => handleClick(link)}
               className="block w-full text-left px-6 py-3 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
             >
               {link.label}
             </button>
           ))}
+
           <div className="px-6 py-4 border-t border-border mt-2">
             <Button variant="outline" className="w-full justify-between" onClick={toggleTheme}>
               <span>{theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}</span>
