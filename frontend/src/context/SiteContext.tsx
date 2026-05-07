@@ -146,6 +146,7 @@ interface SiteContextType {
   updateClient: (id: number | string, data: Partial<Client>) => void;
   deleteClient: (id: number | string) => void;
   getMediaUrl: (path: string | null | undefined) => string;
+  fetchWithAuth: (url: string, options?: any) => Promise<Response>;
 }
 
 
@@ -172,6 +173,25 @@ const getLocal = (key: string, defaultValue: any) => {
   try {
     return saved ? JSON.parse(saved) : defaultValue;
   } catch (e) { return defaultValue; }
+};
+
+const isTokenExpired = (token: string | null) => {
+  if (!token) return true;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const { exp } = JSON.parse(jsonPayload);
+    if (!exp) return false;
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    return exp < currentTime;
+  } catch (e) {
+    return true;
+  }
 };
 
 export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -242,11 +262,19 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const fetchWithAuth = async (url: string, options: any = {}) => {
+    const currentToken = localStorage.getItem("auth_token");
+    
+    if (isTokenExpired(currentToken)) {
+      logout();
+      window.location.href = '/login';
+      throw new Error("Session expired");
+    }
+
     const res = await fetch(url, { 
       ...options, 
       headers: { 
         ...options.headers, 
-        'Authorization': `Bearer ${localStorage.getItem("auth_token")}` 
+        'Authorization': `Bearer ${currentToken}` 
       } 
     });
     
@@ -354,7 +382,13 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  useEffect(() => { fetchAllData(); }, []);
+  useEffect(() => { 
+    const t = localStorage.getItem("auth_token");
+    if (t && isTokenExpired(t)) {
+      logout();
+    }
+    fetchAllData(); 
+  }, []);
 
   const setSectionVisibility = async (section: keyof SectionVisibility, visible: boolean) => {
     setSections(prev => { const n = { ...prev, [section]: visible }; saveLocal("site_sections", n); return n; });
@@ -514,7 +548,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addProduct = async (p: Omit<Product, "id">) => {
     const tid = toast.loading("Creando producto...");
     try {
-      await fetchWithAuth(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: p.name, description: p.description, price: p.price, category_id: p.category_id, brand_id: p.brand_id, reference: p.reference, notes: p.notes, is_active: p.active, image_url: p.image }) });
+      await fetchWithAuth(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: p.name, description: p.description, price: p.price, category_id: p.category_id, brand_id: p.brand_id, reference: p.reference, notes: p.notes, is_active: p.active, image_url: p.image, is_promotion: p.is_promotion }) });
       toast.success("Producto creado", { id: tid });
       fetchAllData();
     } catch (err) { toast.error("Error al crear", { id: tid }); }
@@ -609,7 +643,8 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clients, addClient, updateClient, deleteClient,
       theme,
       toggleTheme,
-      getMediaUrl
+      getMediaUrl,
+      fetchWithAuth
     }}>
 
       {children}

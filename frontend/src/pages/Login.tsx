@@ -70,6 +70,16 @@ const Login = () => {
               {isLoading ? "Iniciando sesión..." : "Entrar"}
             </Button>
           </form>
+
+          <div className="mt-6 pt-6 border-t text-center">
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => navigate("/")}
+            >
+              Ver página
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -43,7 +43,7 @@ const Admin = () => {
     categories, addCategory, updateCategory, deleteCategory,
     brands, addBrand, updateBrand, deleteBrand,
     clients, addClient, updateClient, deleteClient,
-    logout, token, theme, toggleTheme, getMediaUrl
+    logout, token, theme, toggleTheme, getMediaUrl, fetchWithAuth
   } = useSite();
 
 
@@ -56,7 +56,7 @@ const Admin = () => {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch(`${API_URL}/requests`);
+      const res = await fetchWithAuth(`${API_URL}/requests`);
       if (res.ok) {
         const data = await res.json();
         setRequests(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
@@ -76,6 +76,7 @@ const Admin = () => {
   const [editingService, setEditingService] = useState<any>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isPromotion, setIsPromotion] = useState(false);
   
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogCategoryFilter, setCatalogCategoryFilter] = useState<string | null>(null);
@@ -187,8 +188,8 @@ const Admin = () => {
         reference: formData.get("reference") as string,
         notes: formData.get("notes") as string,
         image: formData.get("image") as string,
-        is_promotion: (e.currentTarget.elements.namedItem("is_promotion") as HTMLInputElement).checked,
-        active: true
+        is_promotion: isPromotion,
+        active: editingProduct ? editingProduct.active : true
       };
 
       if (editingProduct) await updateProduct(editingProduct.id, data);
@@ -207,9 +208,8 @@ const Admin = () => {
     formData.append('image', file);
     const toastId = toast.loading("Subiendo imagen...");
     try {
-      const res = await fetch(`${API_URL}/upload`, {
+      const res = await fetchWithAuth(`${API_URL}/upload`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       });
       
@@ -236,8 +236,7 @@ const Admin = () => {
       else if (deleteInfo.type === 'product') await deleteProduct(deleteInfo.id);
       else if (deleteInfo.type === 'client') await deleteClient(deleteInfo.id);
       else if (deleteInfo.type === 'request') {
-
-         await fetch(`${API_URL}/requests/${deleteInfo.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+         await fetchWithAuth(`${API_URL}/requests/${deleteInfo.id}`, { method: 'DELETE' });
          fetchRequests();
       }
       toast.success("Eliminado correctamente", { id: tid });
@@ -250,18 +249,15 @@ const Admin = () => {
 
 
   const updateRequestStatus = async (id: string, status: string) => {
-
     try {
-      await fetch(`${API_URL}/requests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ status }) });
+      await fetchWithAuth(`${API_URL}/requests/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
       fetchRequests();
     } catch (e) { }
   };
 
   const fetchWaStatus = async () => {
     try {
-      const res = await fetch(`${API_URL}/whatsapp/status`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetchWithAuth(`${API_URL}/whatsapp/status`);
       const data = await res.json();
       setWaStatus(data);
     } catch (e) { }
@@ -270,9 +266,8 @@ const Admin = () => {
   const handleWaLogout = async () => {
     setWaLoading(true);
     try {
-      await fetch(`${API_URL}/whatsapp/logout`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      await fetchWithAuth(`${API_URL}/whatsapp/logout`, {
+        method: 'POST'
       });
       toast.success("WhatsApp desvinculado");
       fetchWaStatus();
@@ -605,7 +600,7 @@ const Admin = () => {
                   />
                 </div>
                 <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
-                  <DialogTrigger asChild><Button onClick={() => setEditingProduct(null)}><Plus className="w-4 h-4 mr-2" /> Nuevo Producto</Button></DialogTrigger>
+                  <DialogTrigger asChild><Button onClick={() => { setEditingProduct(null); setIsPromotion(false); }}><Plus className="w-4 h-4 mr-2" /> Nuevo Producto</Button></DialogTrigger>
                   <DialogContent className="max-w-2xl"><form onSubmit={handleSaveProduct}><DialogHeader><DialogTitle>Producto</DialogTitle></DialogHeader>
                     <div className="grid grid-cols-2 gap-4 py-4">
                       <div className="grid gap-2 col-span-2"><Label>Nombre</Label><Input name="name" defaultValue={editingProduct?.name} required /></div>
@@ -613,7 +608,13 @@ const Admin = () => {
                       <div className="grid gap-2"><Label>Categoría</Label><select name="category_id" className="flex h-10 border bg-background px-3 text-sm rounded" defaultValue={editingProduct?.category_id} required><option value="">Seleccionar</option>{categories.filter(c => c.type === 'product').map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}</select></div>
                       <div className="grid gap-2"><Label>Precio</Label><Input name="price" type="number" defaultValue={editingProduct?.price} required /></div>
                       <div className="grid gap-2"><Label>Referencia</Label><Input name="reference" defaultValue={editingProduct?.reference} /></div>
-                      <div className="flex items-center gap-2"><Switch name="is_promotion" defaultChecked={editingProduct?.is_promotion} /> <Label>En Promoción (Aparece primero)</Label></div>
+                      <div className="flex items-center gap-2">
+                        <Switch 
+                          checked={isPromotion} 
+                          onCheckedChange={setIsPromotion} 
+                        /> 
+                        <Label>En Promoción (Aparece primero)</Label>
+                      </div>
                       <div className="grid gap-2 col-span-2"><Label>Notas</Label><Input name="notes" defaultValue={editingProduct?.notes} /></div>
 
                       <div className="grid gap-2 col-span-2"><Label>Imagen</Label>
@@ -678,8 +679,8 @@ const Admin = () => {
                           <TableCell><Switch checked={p.active} onCheckedChange={v => updateProduct(p.id, { ...p, active: v })} /></TableCell>
 
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="icon" onClick={() => { setEditingProduct(p); setIsProductModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
+                             <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => { setEditingProduct(p); setIsPromotion(p.is_promotion); setIsProductModalOpen(true); }}><Pencil className="w-4 h-4" /></Button>
                               <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setDeleteInfo({ id: p.id, type: 'product', name: p.name })}><Trash2 className="w-4 h-4" /></Button>
                             </div>
                           </TableCell>
