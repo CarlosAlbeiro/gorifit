@@ -1,4 +1,4 @@
--- Script de creación de base de datos para Luisa Restrepo Website
+-- Script de creación de base de datos para Mi Negocio Website (Cascarón)
 -- Motor recomendado: PostgreSQL
 
 -- LIMPIEZA
@@ -129,22 +129,16 @@ INSERT INTO site_sections (section_name, is_active) VALUES
 ('hero', true), ('services', true), ('catalog', true), ('profile', true), ('contact', true);
 
 INSERT INTO profile (name, bio, is_active) VALUES 
-('Luisa Restrepo', 'Maquilladora profesional apasionada por resaltar la belleza natural...', true);
+('Mi Negocio', 'Descripción breve de tu negocio y lo que haces para tus clientes...', true);
 
 INSERT INTO contact_info (phone, email, address, instagram_url) VALUES 
-('+57 300 000 0000', 'hola@luisarestrepo.com', 'Medellín, Colombia', 'https://instagram.com/luisarestrepo');
+('+57 300 000 0000', 'contacto@minegocio.com', 'Ciudad, País', 'https://instagram.com/minegocio');
 
 -- Marcas (Del JSON)
 INSERT INTO brands (name) VALUES 
-('Atenea'), ('Bloomshell'), ('Trendy'), ('Ruby Rose'), ('Ani-K'), ('Montoc'), ('Girly'), ('Engol'), ('Ruby Face'), ('Sweer Beuty'), ('Maange'), ('Lula Original'), ('Samy Original'), ('Lluvia de Estrellas Original'), ('Girly Original'), ('Vive Beauty Original'), ('Sara Marín Originales'), ('WE Originales'), ('OG Original'), ('Purpure Original'), ('Ame Original'), ('Dolce Bella Original'), ('Raquel Original'), ('Elaya Original'), ('Bioaqua Original'), ('Prosa Original'), ('Sagui Original'), ('By Yaja Original'), ('Fantiluna Original'), ('MYK Original');
+('Marca Ejemplo 1'), ('Marca Ejemplo 2');
 
 -- Categorías (Del JSON)
 INSERT INTO categories (name, type, icon) VALUES 
-('Brochas', 'product', '🖌️'),
-('Paletas de Ojos', 'product', '🎨'),
-('Labiales, Tintas y Brillos', 'product', '💄'),
-('Iluminadores, Rubores y Contornos', 'product', '✨'),
-('Cejas y Pestañas', 'product', '👁️'),
-('Polvos Sueltos', 'product', '☁️'),
-('Productos Corporales', 'product', '🧼'),
-('Esponjas y Accesorios', 'product', '🎒');
+('Servicios Generales', 'service', '💼'),
+('Productos Principales', 'product', '📦');

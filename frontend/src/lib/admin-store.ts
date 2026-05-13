@@ -42,17 +42,17 @@ const defaultSettings: SiteSettings = {
     contact: true,
   },
   profile: {
-    name: "Luisa Restrepo",
-    bio: "Maquilladora profesional con más de 5 años de experiencia en el mundo de la belleza. Especializada en maquillaje social, editorial y de novias.",
+    name: "Mi Negocio",
+    bio: "Bienvenido a nuestro sitio. Ofrecemos servicios de alta calidad para nuestros clientes.",
     imageUrl: "/placeholder.svg",
     active: true,
   },
   contact: {
     phone: "+57 300 000 0000",
-    email: "hola@luisarestrepo.com",
-    address: "Medellín, Colombia",
+    email: "contacto@minegocio.com",
+    address: "Ciudad, País",
     whatsapp: "https://wa.me/573000000000",
-    instagram: "https://instagram.com/luisarestrepo",
+    instagram: "https://instagram.com/minegocio",
     active: true,
   },
 };

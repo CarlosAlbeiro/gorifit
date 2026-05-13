@@ -9,7 +9,7 @@ const ServicesSection = () => {
   if (activeServices.length === 0) return null;
 
   return (
-    <section id="servicios" className="py-24 bg-secondary/30">
+    <section id="servicios" className="py-24 bg-card">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Experiencias</p>

@@ -68,7 +68,7 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contacto" className="py-24 bg-background">
+    <section id="contacto" className="py-24 bg-card">
       {isSubmitting && <LoadingPage message="Enviando solicitud..." submessage="Casi terminamos" />}
       <div className="container mx-auto px-6">
 

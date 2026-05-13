@@ -7,10 +7,11 @@ export const API_URL = (() => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
   
   // 2. Smart detection for production environment
-  if (typeof window !== 'undefined' && window.location.hostname.includes('galeotek.site')) {
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
     const protocol = window.location.protocol;
-    // Auto-resolve to api- subdomain on the same domain
-    return `${protocol}//api-luisa-restrepo.galeotek.site/api`;
+    const hostname = window.location.hostname;
+    // Auto-resolve to api- subdomain or same domain with /api
+    return `${protocol}//api-${hostname}/api`;
   }
   
   // 3. Fallback to local development
@@ -157,13 +158,13 @@ const DEFAULT_SECTIONS: SectionVisibility = {
 };
 
 const DEFAULT_PROFILE: ProfileData = {
-  name: "Luisa Restrepo", fullname: "Luisa Restrepo - Maquilladora Profesional", bio: "Maquilladora profesional...", imageUrl: "/placeholder.svg", site_icon_url: "/favicon.ico",
-  stats_years: "8+", stats_clients: "500+", stats_products: "120+", stats_awards: "15", auto_response_active: true, active: true,
+  name: "Mi Negocio", fullname: "Mi Negocio - Servicios Profesionales", bio: "Bienvenido a nuestro sitio. Ofrecemos servicios de alta calidad para nuestros clientes.", imageUrl: "/placeholder.svg", site_icon_url: "/favicon.ico",
+  stats_years: "5+", stats_clients: "100+", stats_products: "50+", stats_awards: "5", auto_response_active: true, active: true,
 };
 
 
 const DEFAULT_CONTACT: ContactData = {
-  phone: "+57 300 000 0000", email: "hola@luisarestrepo.com", address: "Medellín, Colombia",
+  phone: "+57 300 000 0000", email: "contacto@minegocio.com", address: "Ciudad, País",
   whatsapp: "", instagram_url: "", instagram_active: true, tiktok_url: "", tiktok_active: true,
   facebook_url: "", facebook_active: true, youtube_url: "", youtube_active: true, active: true,
 };
@@ -316,7 +317,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
             stats_awards: p.stats_awards || "15",
             auto_response_active: p.auto_response_active ?? true,
             tiktok_video_url: p.tiktok_video_url || '',
-            wa_msg_advice: p.wa_msg_advice || "Hola! He visto tu sitio y me gustaría recibir asesoría personalizada. ✨",
+            wa_msg_advice: p.wa_msg_advice || "Hola! He visto tu sitio y me gustaría recibir más información. ✨",
             wa_msg_product: p.wa_msg_product || "Hola! Me interesa este producto: {product}. Me darías más información? 🛍️",
             active: p.is_active 
           };

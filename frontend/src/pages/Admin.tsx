@@ -298,7 +298,7 @@ const Admin = () => {
             </div>
             <div>
               <h1 className="text-lg font-semibold tracking-tight leading-none">Panel Admin</h1>
-              <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest font-medium">Gestión Luisa Restrepo</p>
+              <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest font-medium">Gestión de Negocio</p>
             </div>
           </div>
           <div className="flex gap-2">

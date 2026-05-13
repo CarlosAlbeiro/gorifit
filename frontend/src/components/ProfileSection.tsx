@@ -49,7 +49,7 @@ const ProfileSection = () => {
   ];
 
   return (
-    <section id="perfil" className="py-8 bg-background overflow-hidden">
+    <section id="perfil" className="py-8 bg-card overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-16 items-center">
           {/* Photo/Video Slider */}
