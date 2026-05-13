@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 
+
 const CatalogSection = () => {
   const { products, categories, isLoading, getMediaUrl } = useSite();
   const navigate = useNavigate();
@@ -36,12 +37,12 @@ const CatalogSection = () => {
     <section id="catalogo" className="py-24 gradient-hero">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Colección</p>
+          <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Arsenal</p>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
             Nuestro Catálogo
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Explora nuestra selección de productos profesionales para resaltar tu belleza.
+            Explora nuestra selección de suplementos de alto rendimiento para potenciar tus resultados.
           </p>
         </div>
 
@@ -70,7 +71,7 @@ const CatalogSection = () => {
                 src={getMediaUrl(product.image)} 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 alt={product.name}
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
               />
               
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />

@@ -12,12 +12,12 @@ const ServicesSection = () => {
     <section id="servicios" className="py-24 bg-card">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Experiencias</p>
+          <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Entrenamiento</p>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">
             Mis Servicios
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Ofrezco una variedad de servicios profesionales diseñados para resaltar tu belleza única en cada ocasión.
+            Ofrecemos planes de entrenamiento y asesoría nutricional para llevar tu físico al siguiente nivel.
           </p>
         </div>
 
@@ -35,7 +35,7 @@ const ServicesSection = () => {
                     src={getMediaUrl(service.image)}
                     alt={service.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
                     <span className="text-white font-bold text-lg">${service.price.toLocaleString()}</span>

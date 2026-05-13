@@ -1,4 +1,4 @@
-import { Award, Heart, Sparkles, Star, Instagram, Facebook, Youtube, Video, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trophy, Activity, Zap, Users, Instagram, Facebook, Youtube, Video, ChevronLeft, ChevronRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSite } from "@/context/SiteContext";
 import { useState, useEffect } from "react";
@@ -30,10 +30,10 @@ const ProfileSection = () => {
   if (!profile.active) return null;
 
   const stats = [
-    { icon: Star, label: "Años de experiencia", value: profile.stats_years },
-    { icon: Heart, label: "Clientes felices", value: profile.stats_clients },
-    { icon: Sparkles, label: "Productos creados", value: profile.stats_products },
-    { icon: Award, label: "Reconocimientos", value: profile.stats_awards },
+    { icon: Activity, label: "Años en el fitness", value: profile.stats_years },
+    { icon: Users, label: "Atletas asesorados", value: profile.stats_clients },
+    { icon: Zap, label: "Suplementos únicos", value: profile.stats_products },
+    { icon: Trophy, label: "Certificaciones", value: profile.stats_awards },
   ];
 
   const socials = [
@@ -71,7 +71,7 @@ const ProfileSection = () => {
                       src={slide.content}
                       alt={profile.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
                     />
 
                   ) : (
@@ -119,7 +119,7 @@ const ProfileSection = () => {
 
           {/* Info */}
           <div>
-            <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Sobre mí</p>
+            <p className="text-primary font-medium text-sm uppercase tracking-widest mb-2">Trayectoria</p>
             <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">
               {profile.name}
             </h2>

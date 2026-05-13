@@ -4,7 +4,7 @@ const AestheticEffects = () => {
   const [particles, setParticles] = useState<{ id: number, x: number, y: number, size: number, duration: number, delay: number, emoji: string }[]>([]);
 
   useEffect(() => {
-    const emojis = ['✨', '💄', '💖', '🌸', '💅', '🎀'];
+    const emojis = ['💪', '🔥', '⚡', '🏋️', '🥤', '💊'];
     const newParticles = Array.from({ length: 15 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,

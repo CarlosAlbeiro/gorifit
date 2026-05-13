@@ -78,7 +78,7 @@ const ContactSection = () => {
             Hablemos
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            ¿Tienes alguna pregunta o quieres hacer un pedido especial? ¡Contáctame!
+            ¿Quieres llevar tu entrenamiento al máximo o necesitas asesoría con tus suplementos? ¡Hablemos!
           </p>
         </div>
 

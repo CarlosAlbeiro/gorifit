@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS contact_info CASCADE;
 DROP TABLE IF EXISTS profile CASCADE;
 DROP TABLE IF EXISTS site_sections CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS whatsapp_config CASCADE;
 
 -- 0. Usuarios para autenticación
 CREATE TABLE users (
@@ -41,6 +43,10 @@ CREATE TABLE profile (
     stats_products VARCHAR(20) DEFAULT '120+',
     stats_awards VARCHAR(20) DEFAULT '15',
     tiktok_video_url TEXT,
+    -- WhatsApp automation settings
+    auto_response_active BOOLEAN DEFAULT true,
+    wa_msg_advice TEXT DEFAULT 'Hola! He visto tu perfil y me gustaría recibir asesoría.',
+    wa_msg_product TEXT DEFAULT 'Hola! Me interesa este producto: {product}',
     is_active BOOLEAN DEFAULT true,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -107,6 +113,7 @@ CREATE TABLE products (
     description TEXT,
     price DECIMAL(10, 2),
     image_url TEXT,
+    is_promotion BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -119,7 +126,32 @@ CREATE TABLE service_requests (
     request_date DATE DEFAULT CURRENT_DATE,
     request_time TIME DEFAULT CURRENT_TIME,
     status VARCHAR(20) DEFAULT 'pendiente',
+    -- Legal and tracking fields
+    consent_given BOOLEAN DEFAULT false,
+    ip_address VARCHAR(50),
+    policy_version VARCHAR(20) DEFAULT 'v1.0',
+    source VARCHAR(50) DEFAULT 'web',
+    product_info TEXT,
+    product_image TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 9. Clientes
+CREATE TABLE clients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(255),
+    city VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 10. Configuración de WhatsApp (Estado del Cliente Web)
+CREATE TABLE whatsapp_config (
+    id SERIAL PRIMARY KEY,
+    status VARCHAR(20) DEFAULT 'disconnected',
+    qr_code TEXT,
+    last_update TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- DATOS INICIALES
@@ -134,11 +166,5 @@ INSERT INTO profile (name, bio, is_active) VALUES
 INSERT INTO contact_info (phone, email, address, instagram_url) VALUES 
 ('+57 300 000 0000', 'contacto@minegocio.com', 'Ciudad, País', 'https://instagram.com/minegocio');
 
--- Marcas (Del JSON)
-INSERT INTO brands (name) VALUES 
-('Marca Ejemplo 1'), ('Marca Ejemplo 2');
+INSERT INTO whatsapp_config (status) VALUES ('disconnected');
 
--- Categorías (Del JSON)
-INSERT INTO categories (name, type, icon) VALUES 
-('Servicios Generales', 'service', '💼'),
-('Productos Principales', 'product', '📦');

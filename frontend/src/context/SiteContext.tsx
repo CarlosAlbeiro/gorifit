@@ -15,7 +15,7 @@ export const API_URL = (() => {
   }
   
   // 3. Fallback to local development
-  return "http://localhost:3050/api";
+  return "http://localhost:3053/api";
 })();
 
 interface SectionVisibility {

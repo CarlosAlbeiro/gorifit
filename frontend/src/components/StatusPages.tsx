@@ -1,14 +1,14 @@
-import { Loader2, WifiOff, Sparkles, Heart } from "lucide-react";
+import { Loader2, WifiOff, BicepsFlexed, Medal } from "lucide-react";
 
-export const LoadingPage = ({ message = "Preparando tu belleza...", submessage = "Estamos cargando los mejores productos para ti" }: { message?: string, submessage?: string }) => {
+export const LoadingPage = ({ message = "Preparando tus suplementos...", submessage = "Estamos cargando nuestros mejores productos" }: { message?: string, submessage?: string }) => {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="relative">
         <div className="absolute -inset-4 gradient-primary rounded-full opacity-20 blur-xl animate-pulse" />
         <div className="relative flex items-center justify-center">
           <Loader2 className="w-16 h-16 animate-spin text-primary" />
-          <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-accent animate-bounce" style={{ animationDelay: '0.2s' }} />
-          <Heart className="absolute -bottom-2 -left-2 w-6 h-6 text-pink-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+          <BicepsFlexed className="absolute -top-2 -right-2 w-8 h-8 text-accent animate-bounce" style={{ animationDelay: '0.2s' }} />
+          <Medal className="absolute -bottom-2 -left-2 w-8 h-8 text-accent animate-bounce" style={{ animationDelay: '0.5s' }} />
         </div>
       </div>
       <div className="mt-8 text-center">
@@ -28,8 +28,8 @@ export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background p-6">
       <div className="max-w-md w-full text-center">
-        <div className="relative mb-8 mx-auto w-64 h-64">
-          <div className="absolute inset-0 bg-pink-100 dark:bg-pink-900/20 rounded-full blur-3xl opacity-50" />
+        <div className="relative mb-8 mx-auto w-80 h-80">
+          <div className="absolute inset-0 bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl opacity-50" />
           <img 
             src="/error_illustration.png" 
             alt="Error de conexión" 
@@ -40,7 +40,7 @@ export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
         
         <h2 className="font-heading text-3xl font-bold text-foreground mb-4">¡Oh no! Algo salió mal</h2>
         <p className="text-muted-foreground mb-8">
-          Parece que nuestro kit de maquillaje tuvo un pequeño percance. No logramos conectar con el servidor.
+          Parece que nuestro suplementos tuvieron un pequeño percance. No logramos conectar con el servidor.
         </p>
         
         <div className="flex flex-col gap-4">
@@ -51,10 +51,6 @@ export const ErrorPage = ({ onRetry }: { onRetry?: () => void }) => {
             <WifiOff size={20} />
             Reintentar conexión
           </button>
-          
-          <p className="text-xs text-muted-foreground italic">
-            "Incluso en los días difíciles, sigues siendo hermosa"
-          </p>
         </div>
       </div>
       
