@@ -17,7 +17,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Restore Nginx config to listen on 8089 and handle SPA routes
 RUN echo 'server { \
-    listen 8089; \
+    listen 8091; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html index.htm; \

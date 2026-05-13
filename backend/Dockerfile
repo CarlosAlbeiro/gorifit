@@ -57,6 +57,6 @@ COPY . .
 # Ensure uploads directory exists
 RUN mkdir -p uploads
 
-EXPOSE 3050
+EXPOSE 3053
 
 CMD ["node", "index.js"]
