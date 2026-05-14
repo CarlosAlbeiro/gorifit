@@ -71,7 +71,7 @@ const ProfileSection = () => {
                       src={slide.content}
                       alt={profile.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
+                      onError={(e) => { (e.target as HTMLImageElement).src = '/logo_gori.png'; }}
                     />
 
                   ) : (

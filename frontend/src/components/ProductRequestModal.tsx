@@ -95,7 +95,7 @@ const ProductRequestModal: React.FC<ProductRequestModalProps> = ({ product, isOp
               src={getMediaUrl(product.image)} 
               alt={product.name} 
               className="w-16 h-16 object-cover rounded-xl shadow-sm"
-              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
             />
 
             <div>

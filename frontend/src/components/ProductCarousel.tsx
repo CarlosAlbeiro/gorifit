@@ -54,7 +54,7 @@ const ProductCarousel = () => {
                     src={getMediaUrl(product.image)} 
                     className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover/card:scale-110"
                     alt={product.name}
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
                   />
                   {/* Dynamic Overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover/card:opacity-90 transition-opacity duration-500" />

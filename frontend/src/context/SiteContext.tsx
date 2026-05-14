@@ -609,7 +609,7 @@ export const SiteProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getMediaUrl = (path: string | null | undefined) => {
 
-    if (!path || path === "/placeholder.svg") return "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop";
+    if (!path || path === "/placeholder.svg") return "/placeholder.png";
 
     if (path.startsWith('http') || path.startsWith('data:')) {
       // Force https if current page is https

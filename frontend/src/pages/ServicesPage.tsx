@@ -63,7 +63,7 @@ const ServicesPage = () => {
                     src={getMediaUrl(service.image)} 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     alt={service.name}
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/logo_gori.png'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
                   

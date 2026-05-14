@@ -125,7 +125,7 @@ const CategoryPage = () => {
                     alt={product.name}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=500&auto=format&fit=crop'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
