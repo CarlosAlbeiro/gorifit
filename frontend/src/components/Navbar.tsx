@@ -3,6 +3,7 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { useSite } from "@/context/SiteContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
+// import gorila from './public/gorila.png';
 
 
 interface NavbarProps {
@@ -45,8 +46,9 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 py-2 flex items-center justify-between">
         <button onClick={() => handleClick("inicio")} className="font-heading text-xl font-semibold text-foreground tracking-tight flex items-center">
-          <span className="gradient-primary bg-clip-text text-transparent">GoriFit</span>
-          <span className="ml-1 text-sm md:text-base font-medium opacity-80">{profile.fullname}</span>
+          
+          <span className="gradient-primary bg-clip-text text-transparent p-1 rounded"><img src="/gorila.png" alt="Logo" className="h-8 w-8" /></span>
+          <span className="ml-1 text-sm md:text-base font-medium opacity-80">{profile.fullname} </span>
         </button>
 
         {/* Desktop */}
