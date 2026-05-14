@@ -2,16 +2,18 @@
 -- Motor recomendado: PostgreSQL
 
 -- LIMPIEZA
-DROP TABLE IF EXISTS service_requests CASCADE;
-DROP TABLE IF EXISTS products CASCADE;
-DROP TABLE IF EXISTS brands CASCADE;
-DROP TABLE IF EXISTS services CASCADE;
-DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS brands CASCADE;--
+--catalog_categories
+DROP TABLE IF EXISTS categories CASCADE;--
+DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS contact_info CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS profile CASCADE;
+DROP TABLE IF EXISTS service_requests CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+--service_categories
 DROP TABLE IF EXISTS site_sections CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS whatsapp_config CASCADE;
 
 -- 0. Usuarios para autenticación
