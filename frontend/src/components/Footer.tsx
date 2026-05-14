@@ -11,7 +11,7 @@ const Footer = () => {
           <a href="/terminos-y-condiciones" className="hover:text-primary transition-colors">Términos y Condiciones</a>
         </div>
         <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-          Hecho con <Heart size={14} className="text-primary" /> por {profile.name} © {new Date().getFullYear()}
+          Hecho por galeotek © {new Date().getFullYear()} <a href="https://galeotek.site" className="hover:text-primary transition-colors">Galeotek</a>
         </p>
       </div>
     </footer>
